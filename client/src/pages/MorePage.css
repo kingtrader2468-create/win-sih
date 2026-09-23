@@ -1,0 +1,34 @@
+/* More Page Styles (About Us & Contact Us) */
+.more-page {
+  animation: fadeIn 0.2s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+html.dark .about-section,
+html.dark .contact-section {
+  color: var(--color-on-surface);
+}
+
+html.dark .contact-section textarea,
+html.dark .contact-section input,
+html.dark .contact-section select {
+  background-color: var(--color-surface-container-low);
+  border-color: var(--color-border);
+  color: var(--color-on-surface);
+}
+
+html.dark .contact-section textarea:focus,
+html.dark .contact-section input:focus,
+html.dark .contact-section select:focus {
+  border-color: var(--color-primary-container);
+}

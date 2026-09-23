@@ -1,0 +1,590 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200');
+
+:root {
+  --color-surface-dim: #cbdbf5;
+  --color-primary-container: #1ea7e8;
+  --color-outline-variant: #bec8d1;
+  --color-on-surface: #0b1c30;
+  --color-on-tertiary-container: #003c36;
+  --color-tertiary-fixed-dim: #54dbca;
+  --color-surface-container-high: #dce9ff;
+  --color-secondary-fixed-dim: #b5c8e3;
+  --color-primary-fixed-dim: #87ceff;
+  --color-inverse-on-surface: #eaf1ff;
+  --color-surface-bright: #f8f9ff;
+  --color-on-tertiary: #ffffff;
+  --color-on-primary-fixed-variant: #004c6d;
+  --color-tertiary-fixed: #74f8e6;
+  --color-on-secondary-container: #52647b;
+  --color-surface-container-low: #eff4ff;
+  --color-primary-fixed: #c8e6ff;
+  --color-surface-variant: #d3e4fe;
+  --color-background: #f8f9ff;
+  --color-on-surface-variant: #3e4850;
+  --color-on-tertiary-fixed: #00201c;
+  --color-surface: #f8f9ff;
+  --color-inverse-surface: #213145;
+  --color-on-error: #ffffff;
+  --color-tertiary: #006a60;
+  --color-secondary: #4e6077;
+  --color-surface-container-highest: #d3e4fe;
+  --color-outline: #6e7881;
+  --color-on-tertiary-fixed-variant: #005048;
+  --color-surface-container-lowest: #ffffff;
+  --color-tertiary-container: #07b0a0;
+  --color-surface-tint: #00658f;
+  --color-on-secondary-fixed: #081d30;
+  --color-surface-container: #e5eeff;
+  --color-inverse-primary: #87ceff;
+  --color-on-background: #0b1c30;
+  --color-on-error-container: #93000a;
+  --color-on-primary-fixed: #001e2e;
+  --color-on-secondary: #ffffff;
+  --color-primary: #00658f;
+  --color-error-container: #ffdad6;
+  --color-secondary-container: #cee1fc;
+  --color-error: #ba1a1a;
+  --color-on-primary-container: #003953;
+  --color-secondary-fixed: #d1e4ff;
+  --color-secondary-fixed-variant: #36485e;
+  --color-on-primary: #ffffff;
+  --color-border: #e2e8f0;
+  --color-navy: #0b1f33;
+  --color-text-muted: #64748b;
+
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  color: var(--color-on-surface);
+  background-color: var(--color-background);
+}
+
+/* Polar Nocturnal Dark Theme Tokens */
+html.dark, body.dark {
+  --color-surface-dim: #0c1622;
+  --color-primary-container: #0284c7;
+  --color-outline-variant: #22374d;
+  --color-on-surface: #f1f6fd;
+  --color-on-tertiary-container: #ccfbf1;
+  --color-tertiary-fixed-dim: #2dd4bf;
+  --color-surface-container-high: #1c2e42;
+  --color-secondary-fixed-dim: #334155;
+  --color-primary-fixed-dim: #0284c7;
+  --color-inverse-on-surface: #0b1c30;
+  --color-surface-bright: #162436;
+  --color-on-tertiary: #042f2e;
+  --color-on-primary-fixed-variant: #e0f2fe;
+  --color-tertiary-fixed: #134e48;
+  --color-on-secondary-container: #cbd5e1;
+  --color-surface-container-low: #0e1a29;
+  --color-primary-fixed: #075985;
+  --color-surface-variant: #1a2b3e;
+  --color-background: #060d16;
+  --color-on-surface-variant: #94a9bf;
+  --color-on-tertiary-fixed: #99f6e4;
+  --color-surface: #0a1420;
+  --color-inverse-surface: #f8f9ff;
+  --color-on-error: #450a0a;
+  --color-tertiary: #2dd4bf;
+  --color-secondary: #94a3b8;
+  --color-surface-container-highest: #23374f;
+  --color-outline: #627992;
+  --color-on-tertiary-fixed-variant: #5eead4;
+  --color-surface-container-lowest: #08111b;
+  --color-tertiary-container: #0f766e;
+  --color-surface-tint: #38bdf8;
+  --color-on-secondary-fixed: #f8fafc;
+  --color-surface-container: #132233;
+  --color-inverse-primary: #00658f;
+  --color-on-background: #f1f6fd;
+  --color-on-error-container: #fecaca;
+  --color-on-primary-fixed: #e0f2fe;
+  --color-on-secondary: #0f172a;
+  --color-primary: #38bdf8;
+  --color-error-container: #7f1d1d;
+  --color-secondary-container: #1e293b;
+  --color-error: #f87171;
+  --color-on-primary-container: #f0f9ff;
+  --color-secondary-fixed: #1e293b;
+  --color-secondary-fixed-variant: #475569;
+  --color-on-primary: #082f49;
+  --color-border: #1e334a;
+  --color-navy: #f1f6fd;
+  --color-text-muted: #94a9bf;
+  color-scheme: dark;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  scroll-behavior: smooth;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+body {
+  min-width: 320px;
+  background-color: var(--color-surface-container-lowest);
+  color: var(--color-on-surface);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Automatic Dark Mode Overrides for Tailwind Containers */
+html.dark body {
+  background-color: var(--color-background) !important;
+  color: var(--color-on-surface) !important;
+}
+
+html.dark .bg-surface-container-lowest {
+  background-color: var(--color-surface-container-lowest) !important;
+}
+
+html.dark .bg-surface-container-low {
+  background-color: var(--color-surface-container-low) !important;
+}
+
+html.dark .bg-surface-container {
+  background-color: var(--color-surface-container) !important;
+}
+
+html.dark .bg-surface-container-high {
+  background-color: var(--color-surface-container-high) !important;
+}
+
+html.dark .bg-surface-container-highest {
+  background-color: var(--color-surface-container-highest) !important;
+}
+
+html.dark .bg-surface {
+  background-color: var(--color-surface) !important;
+}
+
+html.dark .text-on-surface {
+  color: var(--color-on-surface) !important;
+}
+
+html.dark .text-on-surface-variant {
+  color: var(--color-on-surface-variant) !important;
+}
+
+html.dark .text-outline {
+  color: var(--color-outline) !important;
+}
+
+html.dark .border-surface-container-high,
+html.dark [class*="border-surface-container-high"] {
+  border-color: var(--color-border) !important;
+}
+
+html.dark .bg-white {
+  background-color: var(--color-surface-container-lowest) !important;
+}
+
+html.dark .text-gray-900, html.dark .text-gray-800 {
+  color: var(--color-on-surface) !important;
+}
+
+html.dark .text-gray-700, html.dark .text-gray-600 {
+  color: var(--color-on-surface-variant) !important;
+}
+
+html.dark .text-gray-500, html.dark .text-gray-400 {
+  color: var(--color-outline) !important;
+}
+
+html.dark .border-gray-200, html.dark .border-gray-300, html.dark .border-slate-200 {
+  border-color: var(--color-border) !important;
+}
+
+html.dark header {
+  background-color: rgba(8, 17, 27, 0.95) !important;
+  border-color: var(--color-border) !important;
+}
+
+html.dark input,
+html.dark select,
+html.dark textarea {
+  color: var(--color-on-surface);
+  background-color: var(--color-surface-container-lowest);
+  border-color: var(--color-border);
+}
+
+html.dark input::placeholder,
+html.dark textarea::placeholder {
+  color: var(--color-outline);
+}
+
+/* React Flow in Dark Mode */
+html.dark .react-flow__background {
+  background-color: #060d16 !important;
+}
+
+html.dark .react-flow__controls {
+  background: #0e1a29 !important;
+  border-color: #1e334a !important;
+}
+
+html.dark .react-flow__controls-button {
+  background: #0e1a29 !important;
+  border-bottom-color: #1e334a !important;
+  color: #f1f6fd !important;
+}
+
+html.dark .react-flow__controls-button:hover {
+  background: #18293d !important;
+}
+
+/* =========================================================
+   DARK MODE – Page-Level Overrides
+   Targets hardcoded #ffffff / #f8f9ff backgrounds & colors
+   ========================================================= */
+
+/* --- HomePage --- */
+html.dark .home-hero {
+  background: linear-gradient(180deg, #0a1520 0%, #060d16 100%);
+  border-bottom-color: var(--color-border);
+}
+
+html.dark .home-hero__tagline-badge {
+  background: var(--color-surface);
+  border-color: var(--color-border);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+html.dark .home-hero__title {
+  color: var(--color-on-surface);
+}
+
+html.dark .badge-tagline {
+  color: var(--color-on-surface);
+}
+
+html.dark .home-hero__lead {
+  color: var(--color-text-muted);
+}
+
+html.dark .section-heading,
+html.dark .section-title {
+  color: var(--color-on-surface);
+}
+
+html.dark .section-desc,
+html.dark .section-subtitle {
+  color: var(--color-text-muted);
+}
+
+html.dark .featured-card,
+html.dark .domain-card,
+html.dark .journey-card,
+html.dark .stat-card,
+html.dark .hub-cta-card,
+html.dark .continue-card {
+  background: var(--color-surface) !important;
+  border-color: var(--color-border) !important;
+  box-shadow: var(--shadow-card) !important;
+}
+
+html.dark .featured-card__title,
+html.dark .domain-card__title,
+html.dark .journey-card__title {
+  color: var(--color-on-surface);
+}
+
+html.dark .featured-card__desc,
+html.dark .domain-card__desc,
+html.dark .journey-card__desc {
+  color: var(--color-text-muted);
+}
+
+html.dark .featured-card__meta,
+html.dark .journey-card__step {
+  color: var(--color-outline);
+}
+
+/* --- AuthPage --- */
+html.dark .auth-page {
+  background: radial-gradient(circle at 10% 20%, rgba(56, 189, 248, 0.08) 0%, transparent 40%),
+              radial-gradient(circle at 90% 80%, rgba(6, 13, 22, 0.3) 0%, transparent 40%),
+              #060d16;
+}
+
+html.dark .auth-container {
+  background: var(--color-surface);
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.3), 0 2px 8px rgba(56, 189, 248, 0.05);
+  border-color: var(--color-border);
+}
+
+html.dark .auth-form-card {
+  background: var(--color-surface);
+}
+
+html.dark .auth-tabs {
+  background: var(--color-surface-container);
+}
+
+html.dark .auth-tab {
+  color: var(--color-text-muted);
+}
+
+html.dark .auth-tab--active {
+  background: var(--color-surface-high);
+  color: var(--color-on-surface);
+}
+
+html.dark .form-group label {
+  color: var(--color-on-surface-variant);
+}
+
+html.dark .input-with-icon input,
+html.dark .select-input {
+  background: var(--color-surface-container) !important;
+  border-color: var(--color-border) !important;
+  color: var(--color-on-surface) !important;
+}
+
+html.dark .input-icon {
+  color: var(--color-outline);
+}
+
+html.dark .google-signin-button {
+  background: var(--color-surface-container);
+  border-color: var(--color-border);
+  color: var(--color-on-surface);
+}
+
+html.dark .google-signin-button:hover:not(:disabled) {
+  background: var(--color-surface-high);
+  border-color: var(--color-outline);
+}
+
+html.dark .auth-divider::before,
+html.dark .auth-divider::after {
+  border-bottom-color: var(--color-border);
+}
+
+html.dark .auth-divider span {
+  color: var(--color-outline);
+}
+
+html.dark .auth-alert--error {
+  background: rgba(127, 29, 29, 0.3);
+  border-color: #991b1b;
+  color: #fca5a5;
+}
+
+html.dark .demo-credentials-helper {
+  background: var(--color-surface-container);
+  border-color: var(--color-border);
+}
+
+html.dark .demo-credentials-helper span {
+  color: var(--color-text-muted);
+}
+
+html.dark .demo-credentials-helper code {
+  color: var(--color-on-surface);
+}
+
+html.dark .guest-return-link {
+  color: var(--color-primary);
+}
+
+html.dark .guest-return-link:hover {
+  color: var(--color-on-surface);
+}
+
+/* --- Catalog / Research / Explorer Pages --- */
+html.dark .catalog-page,
+html.dark .research-page,
+html.dark .explorer-page {
+  background: var(--color-background);
+}
+
+html.dark .catalog-card,
+html.dark .resource-card,
+html.dark .explorer-card,
+html.dark .catalog-header {
+  background: var(--color-surface) !important;
+  border-color: var(--color-border) !important;
+}
+
+html.dark .filter-bar,
+html.dark .search-box,
+html.dark .filter-select {
+  background: var(--color-surface-container) !important;
+  border-color: var(--color-border) !important;
+  color: var(--color-on-surface) !important;
+}
+
+html.dark .button--primary {
+  color: #060d16 !important;
+}
+
+/* --- LearningHub --- */
+html.dark .learning-page,
+html.dark .learning-hub {
+  background: var(--color-background);
+}
+
+html.dark .learning-card,
+html.dark .course-card,
+html.dark .module-card,
+html.dark .quiz-card {
+  background: var(--color-surface) !important;
+  border-color: var(--color-border) !important;
+}
+
+/* --- Mystery Page --- */
+html.dark .mystery-page {
+  background: var(--color-background);
+}
+
+html.dark .mystery-card,
+html.dark .evidence-card,
+html.dark .clue-card {
+  background: var(--color-surface) !important;
+  border-color: var(--color-border) !important;
+}
+
+/* --- Outreach Page --- */
+html.dark .outreach-page {
+  background: var(--color-background);
+}
+
+html.dark .outreach-card,
+html.dark .event-card,
+html.dark .partner-card {
+  background: var(--color-surface) !important;
+  border-color: var(--color-border) !important;
+}
+
+/* --- Profile Page --- */
+html.dark .profile-page {
+  background: var(--color-background);
+}
+
+html.dark .profile-card,
+html.dark .profile-section,
+html.dark .activity-card {
+  background: var(--color-surface) !important;
+  border-color: var(--color-border) !important;
+}
+
+/* --- Progress Page --- */
+html.dark .progress-page {
+  background: var(--color-background);
+}
+
+html.dark .progress-card,
+html.dark .milestone-card {
+  background: var(--color-surface) !important;
+  border-color: var(--color-border) !important;
+}
+
+/* --- Evidence Graph --- */
+html.dark .evidence-graph-container,
+html.dark .reactflow-wrapper {
+  background: #060d16 !important;
+}
+
+html.dark .evidence-graph-container .react-flow__node {
+  background: var(--color-surface) !important;
+  border-color: var(--color-border) !important;
+  color: var(--color-on-surface) !important;
+}
+
+/* --- Search Modal --- */
+html.dark .search-modal-overlay {
+  background: rgba(6, 13, 22, 0.85);
+}
+
+html.dark .search-modal,
+html.dark .search-modal-content {
+  background: var(--color-surface) !important;
+  border-color: var(--color-border) !important;
+}
+
+html.dark .search-result-item {
+  background: var(--color-surface) !important;
+}
+
+html.dark .search-result-item:hover {
+  background: var(--color-surface-container) !important;
+}
+
+/* --- App Layout --- */
+html.dark .app-header {
+  background: var(--color-surface) !important;
+  border-bottom-color: var(--color-border) !important;
+}
+
+/* --- Footer --- */
+html.dark footer,
+html.dark .site-footer {
+  background: var(--color-surface) !important;
+  border-top-color: var(--color-border) !important;
+}
+
+/* --- Universal text/bg overrides for common hardcoded values --- */
+html.dark [style*="background: #ffffff"],
+html.dark [style*="background-color: #ffffff"],
+html.dark [style*="background:#ffffff"],
+html.dark [style*="background: rgb(255, 255, 255)"],
+html.dark [style*="background-color: rgb(255, 255, 255)"] {
+  background: var(--color-surface) !important;
+}
+
+html.dark [style*="color: #0b1f33"],
+html.dark [style*="color: #0c1e33"],
+html.dark [style*="color: #0f172a"],
+html.dark [style*="color:#0b1f33"],
+html.dark [style*="color: #0b1c30"] {
+  color: var(--color-on-surface) !important;
+}
+
+/* Smooth transitions for theme switching */
+*, *::before, *::after {
+  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.15s ease, box-shadow 0.2s ease;
+}
+
+/* Disable transitions on page load to prevent flash */
+html.no-transition *,
+html.no-transition *::before,
+html.no-transition *::after {
+  transition: none !important;
+}
+
+.material-symbols-outlined {
+  font-family: 'Material Symbols Outlined';
+  font-weight: normal;
+  font-style: normal;
+  display: inline-block;
+  line-height: 1;
+  text-transform: none;
+  letter-spacing: normal;
+  word-wrap: normal;
+  white-space: nowrap;
+  direction: ltr;
+  font-feature-settings: 'liga';
+}
+
+button, input, select, textarea {
+  font-family: inherit;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* Hide scrollbars for clean horizontal sub-navbar swipe/scroll */
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-none {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}

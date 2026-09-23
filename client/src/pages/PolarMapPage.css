@@ -1,0 +1,158 @@
+/* Polar Map Page Styles */
+.polar-map-page {
+  animation: fadeIn 0.25s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.polar-map-canvas-container {
+  position: relative;
+  transition: box-shadow 0.2s ease;
+}
+
+.polar-map-canvas-container:hover {
+  box-shadow: 0 4px 20px rgba(11, 31, 51, 0.08);
+}
+
+/* Custom scrollbar for horizontal layers and regions */
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-none {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Dark mode overrides for Polar Map canvas container and cards */
+html.dark .polar-map-canvas-container {
+  border-color: var(--color-border);
+  background-color: var(--color-surface-container);
+}
+
+html.dark .station-inspector-card {
+  background-color: var(--color-surface-container-lowest);
+  border-color: var(--color-border);
+}
+
+/* Leaflet container full viewport fill */
+.leaflet-container {
+  width: 100% !important;
+  height: 100% !important;
+  z-index: 10;
+  background-color: #040911 !important;
+  font-family: inherit;
+}
+
+/* Custom Polar Station Marker in Leaflet */
+.polar-leaflet-marker-wrapper {
+  background: transparent !important;
+  border: none !important;
+}
+
+.polar-station-marker {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  width: 32px;
+  height: 32px;
+}
+
+.polar-marker-pulse {
+  position: absolute;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(30, 167, 232, 0.45);
+  animation: polar-radar 2.2s infinite ease-out;
+}
+
+.polar-marker-pulse.active {
+  background: rgba(245, 158, 11, 0.55);
+}
+
+@keyframes polar-radar {
+  0% {
+    transform: scale(0.5);
+    opacity: 0.95;
+  }
+  100% {
+    transform: scale(2.4);
+    opacity: 0;
+  }
+}
+
+.polar-marker-dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #1ea7e8;
+  border: 2px solid #ffffff;
+  box-shadow: 0 0 10px rgba(30, 167, 232, 0.9);
+  position: relative;
+  z-index: 2;
+  transition: all 0.2s ease;
+}
+
+.polar-marker-dot.active {
+  background: #f59e0b;
+  border-color: #ffffff;
+  box-shadow: 0 0 14px rgba(245, 158, 11, 1);
+  transform: scale(1.3);
+}
+
+.polar-marker-badge {
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  margin-top: 2px;
+  white-space: nowrap;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 1px 6px;
+  border-radius: 9999px;
+  background: rgba(15, 23, 42, 0.9);
+  color: #e2e8f0;
+  border: 1px solid rgba(56, 189, 248, 0.4);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+  pointer-events: none;
+  z-index: 3;
+}
+
+.polar-marker-badge.active {
+  background: #f59e0b;
+  color: #0f172a;
+  border-color: #ffffff;
+}
+
+/* Custom Popup */
+.polar-leaflet-popup .leaflet-popup-content-wrapper {
+  background: #09131f !important;
+  color: #f1f5f9 !important;
+  border-radius: 12px !important;
+  border: 1px solid rgba(56, 189, 248, 0.4) !important;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.6) !important;
+  padding: 4px !important;
+}
+
+.polar-leaflet-popup .leaflet-popup-tip {
+  background: #09131f !important;
+  border: 1px solid rgba(56, 189, 248, 0.4) !important;
+}
+
+.polar-leaflet-popup .leaflet-popup-content {
+  margin: 10px 12px !important;
+  line-height: 1.4 !important;
+}
+

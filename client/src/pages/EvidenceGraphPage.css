@@ -1,0 +1,24 @@
+/* Evidence Graph specific styles */
+.react-flow__controls {
+  border: 1px solid rgba(190, 200, 209, 0.4) !important;
+  border-radius: 8px !important;
+  background: #ffffff !important;
+  box-shadow: 0 4px 12px rgba(11, 31, 51, 0.05) !important;
+}
+
+.react-flow__controls-button {
+  background: #ffffff !important;
+  border-bottom: 1px solid rgba(190, 200, 209, 0.3) !important;
+  color: #0b1f33 !important;
+}
+
+.react-flow__controls-button:hover {
+  background: #f1f5f9 !important;
+}
+
+.evidence-custom-node .react-flow__handle {
+  width: 7px !important;
+  height: 7px !important;
+  background-color: #1ea7e8 !important;
+  border: 2px solid #ffffff !important;
+}

@@ -1,0 +1,20 @@
+module.exports = {
+  User: require('./User'),
+  ResearchResource: require('./ResearchResource'),
+  Expedition: require('./Expedition'),
+  Station: require('./Station'),
+  Dataset: require('./Dataset'),
+  Observation: require('./Observation'),
+  Finding: require('./Finding'),
+  EvidenceLink: require('./EvidenceLink'),
+  Publication: require('./Publication'),
+  Media: require('./Media'),
+  Mystery: require('./Mystery'),
+  Quiz: require('./Quiz'),
+  Badge: require('./Badge'),
+  UserProgress: require('./UserProgress'),
+  OutreachContent: require('./OutreachContent'),
+  Otp: require('./Otp'),
+  ContactMessage: require('./ContactMessage'),
+  Notification: require('./Notification')
+};

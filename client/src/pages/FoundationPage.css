@@ -1,0 +1,5 @@
+.foundation-page { margin: 64px auto; max-width: 1440px; padding: 0 64px; }
+.eyebrow { color: #00658f; font: 600 12px/16px Inter, sans-serif; letter-spacing: .02em; margin: 0 0 8px; text-transform: uppercase; }
+h1 { color: #0b1f33; font: 700 30px/38px 'Plus Jakarta Sans', sans-serif; letter-spacing: -.01em; margin: 0; }
+.foundation-page > p:last-child { color: #3e4850; font: 400 16px/26px Inter, sans-serif; margin: 16px 0 0; max-width: 560px; }
+@media (max-width: 1023px) { .foundation-page { padding: 0 16px; } }

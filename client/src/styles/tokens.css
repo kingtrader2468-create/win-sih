@@ -1,0 +1,46 @@
+:root {
+  --color-background: #f8f9ff;
+  --color-surface: #ffffff;
+  --color-surface-low: #eff4ff;
+  --color-surface-container: #e5eeff;
+  --color-surface-high: #dce9ff;
+  --color-surface-highest: #d3e4fe;
+  --color-navy: #0b1f33;
+  --color-on-surface: #0b1c30;
+  --color-text-muted: #64748b;
+  --color-border: #e8eef3;
+  --color-primary: #1ea7e8;
+  --color-primary-hover: #1694d0;
+  --color-teal: #19b5a5;
+  --color-glacier: #6faedb;
+  --font-heading: 'Plus Jakarta Sans', sans-serif;
+  --font-body: Inter, sans-serif;
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 32px;
+  --space-2xl: 48px;
+  --radius-control: 10px;
+  --radius-card: 14px;
+  --shadow-card: 0 2px 8px rgba(11, 31, 51, 0.04);
+}
+
+:root.dark,
+html.dark {
+  --color-background: #060d16;
+  --color-surface: #0e1a29;
+  --color-surface-low: #0a1520;
+  --color-surface-container: #132233;
+  --color-surface-high: #18293d;
+  --color-surface-highest: #1e334a;
+  --color-navy: #f1f6fd;
+  --color-on-surface: #f1f6fd;
+  --color-text-muted: #94a3b8;
+  --color-border: #1e334a;
+  --color-primary: #38bdf8;
+  --color-primary-hover: #7dd3fc;
+  --color-teal: #2dd4bf;
+  --color-glacier: #7dd3fc;
+  --shadow-card: 0 2px 12px rgba(0, 0, 0, 0.3);
+}

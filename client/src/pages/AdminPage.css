@@ -1,0 +1,15 @@
+/* Admin Page CSS - cleanly aligned with Tailwind tokens */
+.admin-custom-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(190, 200, 209, 0.4) transparent;
+}
+
+.admin-custom-scroll::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.admin-custom-scroll::-webkit-scrollbar-thumb {
+  background: rgba(190, 200, 209, 0.4);
+  border-radius: 9999px;
+}

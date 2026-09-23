@@ -1,0 +1,55 @@
+.progress-page { margin: 48px auto 64px; max-width: 1100px; padding: 0 64px; }
+.progress-page__intro { color: var(--color-text-muted); font: 400 16px/26px var(--font-body); margin: 16px 0 24px; }
+.xp-panel { background: var(--color-surface-container); border: 1px solid var(--color-border); border-radius: var(--radius-card); padding: 20px; }
+.xp-panel span { color: var(--color-text-muted); font: 600 11px/14px var(--font-body); letter-spacing: .04em; text-transform: uppercase; }
+.xp-panel strong { color: var(--color-navy); display: block; font: 700 36px/44px var(--font-heading); margin-top: 4px; }
+.xp-panel p { color: var(--color-text-muted); font: 400 13px/18px var(--font-body); margin: 4px 0 0; }
+.progress-metrics { display: grid; gap: 16px; grid-template-columns: repeat(4, 1fr); margin: 24px 0 40px; }
+.progress-metrics article { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 12px; box-shadow: var(--shadow-card); display: grid; gap: 4px; padding: 16px; }
+.progress-metrics svg { color: var(--color-primary); }
+.progress-metrics strong { color: var(--color-navy); font: 600 24px/32px var(--font-heading); }
+.progress-metrics span { color: var(--color-text-muted); font: 400 12px/18px var(--font-body); }
+.badges-section { border-top: 1px solid var(--color-border); padding-top: 24px; }
+.badges-section h2, .progress-section__heading h2 { color: var(--color-navy); font: 600 20px/28px var(--font-heading); margin: 0; }
+.badges-section > div > p, .progress-section__heading p { color: var(--color-text-muted); font: 400 13px/19px var(--font-body); margin: 4px 0 16px; }
+.badge-grid { display: grid; gap: 12px; grid-template-columns: repeat(2, 1fr); }
+.badge-card { align-items: center; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 12px; display: flex; gap: 12px; padding: 14px; }
+.badge-card svg { color: var(--color-text-muted); }
+.badge-card--earned { background: var(--color-surface-low); border-color: var(--color-teal); }
+.badge-card--earned svg { color: var(--color-teal); }
+.badge-card div { flex: 1; }
+.badge-card h3 { color: var(--color-navy); font: 600 14px/20px var(--font-heading); margin: 0; }
+.badge-card p, .badge-card > span { color: var(--color-text-muted); font: 400 12px/18px var(--font-body); margin: 2px 0 0; }
+.badge-card > span { font-weight: 600; white-space: nowrap; }
+.progress-detail-grid { display: grid; gap: 24px; grid-template-columns: 1.25fr 1fr; margin-top: 40px; }
+.progress-section { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-card); box-shadow: var(--shadow-card); padding: 20px; }
+.progress-section--recent { margin-top: 24px; }
+.progress-section__heading { align-items: flex-start; display: flex; gap: 10px; }
+.progress-section__heading > svg { color: var(--color-primary); flex: 0 0 auto; margin-top: 3px; }
+.progress-section__heading > div { flex: 1; }
+.progress-section__heading p { margin-bottom: 0; }
+.progress-section__heading > a { color: var(--color-primary); font: 600 13px/20px var(--font-body); white-space: nowrap; }
+.timeline-list { list-style: none; margin: 18px 0 0; padding: 0; }
+.timeline-list li { align-items: center; border-top: 1px solid var(--color-border); display: grid; gap: 10px; grid-template-columns: 16px minmax(0, 1fr) auto; padding: 12px 0; }
+.timeline-list li:first-child { border-top: 0; padding-top: 0; }
+.timeline-list svg { color: var(--color-teal); }
+.timeline-list div { display: grid; gap: 1px; }
+.timeline-list span, .timeline-list time, .saved-mystery > span, .recent-resource span, .recent-resource small { color: var(--color-text-muted); font: 400 12px/18px var(--font-body); }
+.timeline-list a { color: var(--color-navy); font: 600 13px/19px var(--font-heading); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.timeline-list time { white-space: nowrap; }
+.saved-list { display: grid; gap: 10px; margin-top: 18px; }
+.saved-mystery { align-items: center; background: var(--color-surface-low); border: 1px solid var(--color-border); border-radius: 12px; display: flex; gap: 12px; justify-content: space-between; padding: 12px; }
+.saved-mystery div { display: grid; gap: 2px; min-width: 0; }
+.saved-mystery div > span { color: var(--color-teal); font: 600 11px/16px var(--font-body); text-transform: uppercase; }
+.saved-mystery strong { color: var(--color-navy); font: 600 13px/19px var(--font-heading); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.saved-mystery small { color: var(--color-text-muted); font: 400 12px/18px var(--font-body); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.progress-empty { color: var(--color-text-muted); font: 400 13px/20px var(--font-body); margin: 18px 0 0; }
+.recent-research-grid { display: grid; gap: 12px; grid-template-columns: repeat(3, 1fr); margin-top: 18px; }
+.recent-resource { background: var(--color-surface-low); border: 1px solid var(--color-border); border-radius: 12px; display: grid; gap: 5px; padding: 14px; }
+.recent-resource span { color: var(--color-primary); font-weight: 600; text-transform: uppercase; }
+.recent-resource h3 { color: var(--color-navy); font: 600 14px/20px var(--font-heading); margin: 0; }
+.recent-resource p { color: var(--color-text-muted); font: 400 12px/18px var(--font-body); margin: 0; }
+.recent-resource small { margin-top: 3px; }
+@media (hover: hover) { .timeline-list a:hover, .progress-section__heading > a:hover { color: var(--color-primary-hover); }.saved-mystery:hover, .recent-resource:hover { border-color: var(--color-primary); } }
+@media (max-width: 1023px) { .progress-page { padding: 0 16px; }.progress-metrics { grid-template-columns: repeat(2, 1fr); }.progress-detail-grid { grid-template-columns: 1fr; }.recent-research-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 767px) { .progress-metrics, .badge-grid, .recent-research-grid { grid-template-columns: 1fr; }.progress-section { padding: 16px; }.timeline-list li { align-items: start; grid-template-columns: 16px minmax(0, 1fr); }.timeline-list time { grid-column: 2; }.progress-section__heading > a { display: none; } }
