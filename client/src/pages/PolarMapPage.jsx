@@ -7,12 +7,9 @@ import {
   Compass,
   MapPin,
   Thermometer,
-  Wind,
   Layers,
-  Activity,
   Globe2,
   Calendar,
-  Waves,
   Search,
   ChevronRight,
   X,
@@ -34,7 +31,6 @@ import {
 } from 'recharts';
 import {
   getMapStations,
-  getMapLayers,
   getMapProjects,
   getMapConfig
 } from '../services/apiClient.js';
@@ -51,20 +47,10 @@ const regionsList = [
   { id: 'Himalaya', label: 'Himalayas (Third Pole)', icon: Layers }
 ];
 
-const layersList = [
-  { id: 'climate', label: 'Climate Telemetry', icon: Activity, color: '#1ea7e8' },
-  { id: 'ocean', label: 'Ocean & Currents', icon: Waves, color: '#0ea5e9' },
-  { id: 'ice', label: 'Ice Sheets & Glaciers', icon: Snowflake, color: '#38bdf8' },
-  { id: 'temperature', label: 'Thermal Isotherms', icon: Thermometer, color: '#f43f5e' },
-  { id: 'atmosphere', label: 'Atmosphere & Ozone', icon: Wind, color: '#10b981' }
-];
-
 function PolarMapPage() {
   const { isDark } = useTheme();
   const [selectedRegion, setSelectedRegion] = useState('All');
-  const [activeLayer, setActiveLayer] = useState('climate');
   const [stations, setStations] = useState([]);
-  const [layersData, setLayersData] = useState(null);
   const [projects, setProjects] = useState([]);
   const [mapConfig, setMapConfig] = useState(null);
   const [selectedStation, setSelectedStation] = useState(null);
@@ -82,17 +68,15 @@ function PolarMapPage() {
 
     Promise.all([
       getMapStations(),
-      getMapLayers(),
       getMapProjects()
       , getMapConfig()
     ])
-      .then(([stationsRes, layersRes, projectsRes, mapConfigRes]) => {
+      .then(([stationsRes, projectsRes, mapConfigRes]) => {
         if (!isMounted) return;
         if (stationsRes.stations) {
           setStations(stationsRes.stations);
           setSelectedStation(stationsRes.stations[0]); // default to Bharati
         }
-        if (layersRes.layers) setLayersData(layersRes.layers);
         if (projectsRes.projects) setProjects(projectsRes.projects);
         setMapConfig(mapConfigRes);
       })
@@ -125,8 +109,6 @@ function PolarMapPage() {
     });
   }, [stations, selectedRegion, searchQuery]);
 
-  // Current active layer details
-  const currentLayerData = layersData ? layersData[activeLayer] : null;
   const selectedWeather = selectedStation?.currentWeather;
 
   // Initialize a lightweight WebGL globe using MapTiler vector tiles.
@@ -221,7 +203,7 @@ function PolarMapPage() {
       marker.innerHTML = '<span></span>';
       markersRef.current.push(new maplibregl.Marker({ element: marker }).setLngLat([lng, lat]).setPopup(new maplibregl.Popup({ offset: 16 }).setHTML(`<strong>${project.title}</strong><br/>${project.discipline}<br/>${project.summary}`)).addTo(mapInstanceRef.current));
     });
-  }, [filteredStations, projects, selectedStation, selectedRegion, activeLayer]);
+  }, [filteredStations, projects, selectedStation, selectedRegion]);
 
   return (
     <div className="polar-map-page w-full min-h-[calc(100vh-80px)] bg-surface-container-lowest flex flex-col">
@@ -306,48 +288,7 @@ function PolarMapPage() {
         </div>
       </div>
 
-      {/* 2. LAYER CONTROLS BAR */}
-      <div className="bg-surface-container-low/80 border-b border-surface-container-high/70 backdrop-blur-sm sticky top-16 z-30">
-        <div className="max-w-[1440px] mx-auto px-margin-sm lg:px-margin-lg py-2 flex items-center justify-between gap-3 overflow-x-auto scrollbar-none">
-          <div className="flex items-center gap-2">
-            <div className="flex items-center gap-1.5">
-              {layersList.map((layer) => {
-                const Icon = layer.icon;
-                const isCurrent = activeLayer === layer.id;
-                return (
-                  <button
-                    key={layer.id}
-                    type="button"
-                    onClick={() => setActiveLayer(layer.id)}
-                    className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md font-label-md text-label-md transition-all ${
-                      isCurrent
-                        ? 'bg-surface-container-lowest text-primary border border-primary/30 shadow-2xs font-bold'
-                        : 'text-on-surface-variant hover:bg-surface-container hover:text-on-surface'
-                    }`}
-                  >
-                    <Icon size={15} style={{ color: layer.color }} />
-                    <span>{layer.label}</span>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-
-          {currentLayerData?.globalMetrics && (
-            <div className="hidden xl:flex items-center gap-4 text-label-sm font-data-tabular text-on-surface-variant">
-              {Object.entries(currentLayerData.globalMetrics).slice(0, 2).map(([key, val]) => (
-                <div key={key} className="flex items-center gap-1.5">
-                  <span className="w-1.5 h-1.5 rounded-full bg-primary" />
-                  <span className="capitalize">{key.replace(/([A-Z])/g, ' $1')}:</span>
-                  <span className="font-semibold text-on-surface">{val}</span>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* 3. MAIN MAP WORKSPACE (CANVAS + STATION DRAWER) */}
+      {/* 2. MAIN MAP WORKSPACE (CANVAS + STATION DRAWER) */}
       <div className="max-w-[1440px] w-full mx-auto px-margin-sm lg:px-margin-lg py-6 flex-1 grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* Left Map Viewport (8 cols on lg) */}
         <div className="lg:col-span-8 flex flex-col gap-4">
@@ -359,7 +300,7 @@ function PolarMapPage() {
               {/* Map Layer Overlay Info Pill */}
               <div className="absolute top-4 left-4 z-20 flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-900/85 backdrop-blur-md border border-sky-400/30 text-white font-label-sm text-[11px] uppercase tracking-wider shadow-md pointer-events-none">
                 <span className="w-2 h-2 rounded-full bg-sky-400 animate-ping" />
-                <span>Active Layer: <strong>{layersList.find((l) => l.id === activeLayer)?.label}</strong></span>
+                <span>Polar telemetry</span>
               </div>
 
               {/* Map Controls: Global Reset View */}
@@ -385,46 +326,6 @@ function PolarMapPage() {
               </div>
             </div>
 
-            {/* Layer Data Highlights Bar below Canvas */}
-            {currentLayerData && (
-              <div className="p-4 bg-surface-container-lowest border-t border-surface-container-high/80">
-                <div className="flex items-start gap-3">
-                  <div className="p-2 rounded-lg bg-primary-container/20 text-primary shrink-0 mt-0.5">
-                    <Info size={18} />
-                  </div>
-                  <div className="flex-1">
-                    <div className="flex items-center justify-between mb-1">
-                      <h4 className="font-title-md text-label-md font-bold text-on-surface m-0">
-                        {currentLayerData.name} Overview
-                      </h4>
-                      <span className="text-label-sm text-outline font-data-tabular">
-                        Real-time Sensor Interpolation
-                      </span>
-                    </div>
-                    <p className="font-body-sm text-label-sm text-on-surface-variant m-0 mb-3 leading-relaxed">
-                      {currentLayerData.summary}
-                    </p>
-
-                    {/* Zone Cards */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-2">
-                      {currentLayerData.zones?.map((zone) => (
-                        <div
-                          key={zone.name}
-                          className="p-2.5 rounded-lg bg-surface-container-low border border-surface-container-high flex flex-col justify-between"
-                        >
-                          <span className="font-label-sm text-[11px] text-outline font-semibold line-clamp-1">
-                            {zone.name}
-                          </span>
-                          <span className="font-title-md text-body-sm font-bold text-on-surface mt-1">
-                            {zone.value}
-                          </span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
           </div>
 
           {/* Connected Research Projects Section */}

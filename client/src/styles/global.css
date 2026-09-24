@@ -150,6 +150,32 @@ html.dark .site-footer {
   border-color: var(--color-border);
 }
 
+.polar-navigation-sidebar {
+  background-color: var(--color-surface-container-lowest);
+  border-color: var(--color-border);
+  color: var(--color-on-surface);
+}
+
+html.dark .polar-navigation-sidebar {
+  background-color: #08111b !important;
+  border-color: #1c2e42 !important;
+  color: #f1f6fd;
+}
+
+html.dark .polar-navigation-sidebar a {
+  color: #cbd5e1 !important;
+}
+
+html.dark .polar-navigation-sidebar a:hover {
+  background-color: #132233 !important;
+  color: #f1f6fd !important;
+}
+
+html.dark .polar-navigation-sidebar a.bg-secondary-container {
+  background-color: #1e293b !important;
+  color: #f8fafc !important;
+}
+
 html.dark .brand {
   color: var(--color-on-surface);
 }

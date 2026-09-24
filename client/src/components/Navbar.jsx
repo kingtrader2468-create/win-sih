@@ -249,7 +249,7 @@ function Navbar() {
             className="fixed inset-0 top-16 bg-slate-950/30 cursor-default lg:hidden"
             onClick={() => setIsMobileMenuOpen(false)}
           />
-          <aside className="fixed top-16 right-0 bottom-0 w-[min(86vw,340px)] bg-surface-container-lowest border-l border-surface-container-high px-margin-sm py-space-md shadow-2xl flex flex-col gap-space-xs overflow-y-auto animate-in slide-in-from-right duration-200 z-10 lg:hidden">
+          <aside className="polar-navigation-sidebar fixed top-16 right-0 bottom-0 w-[min(86vw,340px)] bg-surface-container-lowest border-l border-surface-container-high px-margin-sm py-space-md shadow-2xl flex flex-col gap-space-xs overflow-y-auto animate-in slide-in-from-right duration-200 z-10 lg:hidden">
             <span className="text-outline font-label-sm text-[11px] uppercase tracking-wider px-3 mb-1">
               PORTAL NAVIGATION
             </span>
@@ -336,7 +336,7 @@ function Navbar() {
       <aside
         onMouseEnter={openSidebarOnHover}
         onMouseLeave={closeSidebarOnHoverLeave}
-        className={`hidden lg:flex fixed top-0 right-0 bottom-0 w-64 z-[60] bg-surface-container-lowest border-l border-surface-container-high px-4 py-5 shadow-lg flex-col gap-2 overflow-y-auto transform transition-transform duration-[650ms] ease-in-out ${isDesktopSidebarOpen ? 'translate-x-0' : 'translate-x-full'}`}
+        className={`polar-navigation-sidebar hidden lg:flex fixed top-0 right-0 bottom-0 w-64 z-[60] bg-surface-container-lowest border-l border-surface-container-high px-4 py-5 shadow-lg flex-col gap-2 overflow-y-auto transform transition-transform duration-[650ms] ease-in-out ${isDesktopSidebarOpen ? 'translate-x-0' : 'translate-x-full'}`}
       >
         <Link to="/" className="flex items-center gap-2 px-2 mb-5" onClick={() => setIsMobileMenuOpen(false)}>
           <img alt="Logo" className="h-9 w-auto" src={logoIcon} />
