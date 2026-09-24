@@ -7,7 +7,9 @@ import {
   Compass,
   FileCheck,
   ShieldCheck,
-  ArrowRight
+  ArrowRight,
+  MapPin,
+  SlidersHorizontal
 } from 'lucide-react';
 import { Link, useParams } from 'react-router-dom';
 import CatalogCard from '../components/CatalogCard.jsx';
@@ -25,8 +27,9 @@ const labels = {
 
 export function CatalogListPage({ collection }) {
   const [data, setData] = useState({ items: [], filters: {} });
-  const [filters, setFilters] = useState({ search: '', region: '', type: '', status: '' });
+  const [filters, setFilters] = useState({ search: '', region: '', station: '', type: '', status: '', year: '', journal: '', source: '', page: 1, limit: 12 });
   const [status, setStatus] = useState('loading');
+  const [filtersOpen, setFiltersOpen] = useState(false);
 
   useEffect(() => {
     let ignore = false;
@@ -53,15 +56,18 @@ export function CatalogListPage({ collection }) {
 
   const update = (name, value) => {
     setStatus('loading');
-    setFilters((current) => ({ ...current, [name]: value }));
+    setFilters((current) => ({ ...current, [name]: value, page: 1 }));
   };
 
   const clear = () => {
     setStatus('loading');
-    setFilters({ search: '', region: '', type: '', status: '' });
+    setData((current) => ({ ...current, items: [], stationGroups: [] }));
+    setFilters({ search: '', region: '', station: '', type: '', status: '', year: '', journal: '', source: '', page: 1, limit: 12 });
   };
 
   const info = labels[collection] || ['Repository Catalog', 'Explorer', 'Explore verified scientific records.'];
+  const stationFirst = ['datasets', 'publications', 'media'].includes(collection);
+  const selectedStation = filters.station;
 
   return (
     <div className="w-full bg-surface-container-lowest min-h-screen">
@@ -85,18 +91,32 @@ export function CatalogListPage({ collection }) {
 
           <div className="shrink-0">
             <span className="inline-flex items-center px-3 py-1 rounded-full bg-surface-container-low text-primary font-data-tabular text-label-sm font-semibold border border-surface-container-high/60">
-              {status === 'success' ? `${data.items.length} records available` : 'Loading records…'}
+              {status === 'success'
+                ? stationFirst && !selectedStation
+                  ? `${(data.stationGroups || []).length} polar regions`
+                  : `${data.pagination?.total ?? data.items.length} records available`
+                : 'Loading records…'}
             </span>
           </div>
         </div>
 
         {/* Filters */}
-        <CatalogFilters
-          filters={filters}
-          options={data.filters}
-          onChange={update}
-          onClear={clear}
-        />
+        <div className="mb-space-xl">
+          <button
+            type="button"
+            onClick={() => setFiltersOpen((open) => !open)}
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-surface-container-low border border-surface-container-high text-on-surface font-label-md font-semibold"
+            aria-expanded={filtersOpen}
+          >
+            <SlidersHorizontal size={16} />
+            {filtersOpen ? 'Hide filters' : 'Show filters'}
+          </button>
+          {filtersOpen && (
+            <div className="mt-space-sm">
+              <CatalogFilters filters={filters} options={data.filters} onChange={update} onClear={clear} />
+            </div>
+          )}
+        </div>
 
         {/* Loading State */}
         {status === 'loading' && (
@@ -134,7 +154,7 @@ export function CatalogListPage({ collection }) {
         )}
 
         {/* Empty State */}
-        {status === 'success' && !data.items.length && (
+        {status === 'success' && (!stationFirst || selectedStation) && !data.items.length && (
           <div className="bg-surface-container-lowest rounded-2xl p-space-2xl border border-surface-container-high/60 text-center flex flex-col items-center justify-center min-h-[300px] shadow-sm">
             <h2 className="font-headline-sm text-headline-sm text-on-surface font-bold">
               No matching records found
@@ -152,13 +172,66 @@ export function CatalogListPage({ collection }) {
           </div>
         )}
 
-        {/* Grid */}
-        {status === 'success' && data.items.length > 0 && (
+        {status === 'success' && stationFirst && !selectedStation && (data.stationGroups || []).length > 0 && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-gutter-lg">
-            {data.items.map((item) => (
-              <CatalogCard collection={collection} item={item} key={item._id} />
+            {(data.stationGroups || []).map((group) => (
+              <button
+                key={group.station}
+                type="button"
+                onClick={() => update('station', group.station)}
+                className="text-left bg-surface-container-lowest rounded-2xl p-space-lg shadow-sm hover:shadow-md hover:border-primary transition-all border border-surface-container-high/60"
+              >
+                <div className="flex items-center justify-between gap-3 mb-space-md">
+                  <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-primary-fixed text-on-primary-fixed-variant font-label-sm font-bold">
+                    <MapPin size={14} /> {group.region}
+                  </span>
+                  <span className="font-data-tabular text-label-sm text-outline">{group.count} records</span>
+                </div>
+                <h2 className="font-headline-sm text-headline-sm text-on-surface font-bold mb-2">{group.station}</h2>
+                <p className="font-body-sm text-body-sm text-on-surface-variant">
+                  Open {collection} for this station
+                </p>
+              </button>
             ))}
           </div>
+        )}
+
+        {status === 'success' && stationFirst && selectedStation && (
+          <button
+            type="button"
+            onClick={() => update('station', '')}
+            className="inline-flex items-center gap-2 mb-space-lg text-primary font-label-md font-semibold"
+          >
+            <ArrowLeft size={16} /> Back to polar regions
+          </button>
+        )}
+
+        {/* Grid */}
+        {status === 'success' && (!stationFirst || selectedStation) && data.items.length > 0 && (
+          <>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-gutter-lg">
+              {data.items.map((item) => (
+                <CatalogCard collection={collection} item={item} key={item._id || item.sourceId} />
+              ))}
+            </div>
+            {data.pagination && (data.pagination.totalPages > 1 || data.pagination.source) && (
+              <nav className="flex items-center justify-center gap-space-md mt-space-2xl font-data-tabular" aria-label={`${collection} pages`}>
+                <button
+                  className="px-4 py-2 rounded-lg bg-surface-container-low text-on-surface disabled:opacity-40"
+                  disabled={filters.page === 1}
+                  onClick={() => setFilters((current) => ({ ...current, page: current.page - 1 }))}
+                  type="button"
+                >Previous</button>
+                <span>Page {filters.page}{data.pagination.totalPages ? ` of ${data.pagination.totalPages}` : ''}</span>
+                <button
+                  className="px-4 py-2 rounded-lg bg-surface-container-low text-on-surface disabled:opacity-40"
+                  disabled={data.pagination.totalPages ? filters.page >= data.pagination.totalPages : data.items.length < filters.limit}
+                  onClick={() => setFilters((current) => ({ ...current, page: current.page + 1 }))}
+                  type="button"
+                >Next</button>
+              </nav>
+            )}
+          </>
         )}
       </section>
     </div>

@@ -14,6 +14,10 @@ const datasetSchema = new mongoose.Schema({
   spatialProjection: { type: String, default: 'WGS 84 / Polar Stereographic' },
   calibrationStandard: { type: String, default: 'TEOS-10 Pressure Calibrated' },
   doi: String,
+  externalId: { type: String, unique: true, sparse: true, index: true },
+  source: String,
+  sourceUrl: String,
+  verificationStatus: { type: String, default: 'Source-linked Resource' },
   expedition: { type: mongoose.Schema.Types.ObjectId, ref: 'Expedition' },
   station: { type: mongoose.Schema.Types.ObjectId, ref: 'Station' },
   status: { type: String, default: 'published' }

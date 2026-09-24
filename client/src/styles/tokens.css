@@ -28,19 +28,19 @@
 
 :root.dark,
 html.dark {
-  --color-background: #060d16;
-  --color-surface: #0e1a29;
-  --color-surface-low: #0a1520;
-  --color-surface-container: #132233;
-  --color-surface-high: #18293d;
-  --color-surface-highest: #1e334a;
-  --color-navy: #f1f6fd;
-  --color-on-surface: #f1f6fd;
-  --color-text-muted: #94a3b8;
-  --color-border: #1e334a;
-  --color-primary: #38bdf8;
-  --color-primary-hover: #7dd3fc;
-  --color-teal: #2dd4bf;
-  --color-glacier: #7dd3fc;
+  --color-background: #0c0c0b;
+  --color-surface: #111110;
+  --color-surface-low: #151513;
+  --color-surface-container: #1c1c1a;
+  --color-surface-high: #292927;
+  --color-surface-highest: #333331;
+  --color-navy: #ffffff;
+  --color-on-surface: #ffffff;
+  --color-text-muted: #a5a5a0;
+  --color-border: #333331;
+  --color-primary: #ffffff;
+  --color-primary-hover: #d6d6d2;
+  --color-teal: #ffffff;
+  --color-glacier: #d6d6d2;
   --shadow-card: 0 2px 12px rgba(0, 0, 0, 0.3);
 }

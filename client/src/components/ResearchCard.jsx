@@ -32,8 +32,13 @@ function ResearchCard({ resource }) {
 
         {/* Authors & Research Area */}
         <p className="font-label-md text-label-md text-secondary font-medium mb-space-sm">
-          {resource.researchArea || 'Cryospheric Science'} · {resource.region || 'Polar Region'}
+          {resource.researchArea || 'Cryospheric Science'} · {resource.category?.region || resource.region || 'Polar Region'}
         </p>
+        {resource.category?.station && (
+          <p className="font-label-sm text-label-sm text-outline mb-space-sm">
+            Station category: {resource.category.station}
+          </p>
+        )}
 
         {/* Description */}
         <p className="font-body-sm text-body-sm text-on-surface-variant line-clamp-3 leading-relaxed mb-space-md">

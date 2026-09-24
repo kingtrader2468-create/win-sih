@@ -1,0 +1,42 @@
+const globalStationCatalog = [
+  ['MCMURDO', 'McMurdo Station', 'Antarctica', -77.8419, 166.6863, 'United States Antarctic Program', 'https://www.usap.gov/'],
+  ['AMUNDSEN_SCOTT', 'Amundsen-Scott South Pole Station', 'Antarctica', -90, 0, 'United States Antarctic Program', 'https://www.usap.gov/'],
+  ['ROTHERA', 'Rothera Research Station', 'Antarctica', -67.5681, -68.1281, 'British Antarctic Survey', 'https://www.bas.ac.uk/about/about-bas/our-organisation/our-stations/rothera/'],
+  ['HALLEY_VI', 'Halley VI Research Station', 'Antarctica', -75.605, -26.209, 'British Antarctic Survey', 'https://www.bas.ac.uk/about/about-bas/our-organisation/our-stations/halley/'],
+  ['CONCORDIA', 'Concordia Station', 'Antarctica', -75.1, 123.33, 'Institut polaire français Paul-Émile Victor', 'https://institut-polaire.fr/en/'],
+  ['NEUMAYER_III', 'Neumayer Station III', 'Antarctica', -70.65, -8.25, 'Alfred Wegener Institute', 'https://www.awi.de/en/expedition/stations/neumayer-station-iii.html'],
+  ['CASEY', 'Casey Research Station', 'Antarctica', -66.2827, 110.527, 'Australian Antarctic Division', 'https://www.antarctica.gov.au/antarctic-operations/stations/casey/'],
+  ['DAVIS', 'Davis Research Station', 'Antarctica', -68.5766, 77.9674, 'Australian Antarctic Division', 'https://www.antarctica.gov.au/antarctic-operations/stations/davis/'],
+  ['VOSTOK', 'Vostok Station', 'Antarctica', -78.464, 106.837, 'Russian Antarctic Expedition', 'https://www.aari.ru/'],
+  ['TROLL', 'Troll Research Station', 'Antarctica', -72.011, 2.535, 'Norwegian Polar Institute', 'https://www.npolar.no/en/troll/'],
+  ['SANAE_IV', 'SANAE IV', 'Antarctica', -71.67, 2.84, 'South African National Antarctic Programme', 'https://www.sanap.ac.za/'],
+  ['PRINCESS_ELISABETH', 'Princess Elisabeth Antarctica', 'Antarctica', -71.949, 23.347, 'International Polar Foundation', 'https://www.antarcticstation.org/'],
+  ['NY_ALESUND', 'Ny-Ålesund Research Community', 'Arctic', 78.923, 11.928, 'Kings Bay / Svalbard research community', 'https://nyalesundresearch.no/'],
+  ['ZACKENBERG', 'Zackenberg Research Station', 'Arctic', 74.474, -20.564, 'Aarhus University / Greenland Ecosystem Monitoring', 'https://g-e-m.dk/'],
+  ['SUMMIT_CAMP', 'Summit Station', 'Greenland', 72.58, -38.46, 'National Science Foundation / Greenland Climate Network', 'https://www.usap.gov/'],
+  ['EUREKA', 'Eureka Weather Station', 'Arctic', 80.0, -85.933, 'Government of Canada', 'https://www.canada.ca/en/environment-climate-change/services/weather-manuals-documentation/weather-stations/eureka.html'],
+  ['ALERT', 'Canadian Forces Station Alert', 'Arctic', 82.5018, -62.3481, 'Government of Canada', 'https://www.canada.ca/'],
+  ['TOOLIK', 'Toolik Field Station', 'Arctic', 68.627, -149.596, 'Institute of Arctic Biology, University of Alaska Fairbanks', 'https://toolik.alaska.edu/'],
+  ['BARROW', 'Utqiaġvik Barrow Environmental Observatory', 'Arctic', 71.323, -156.611, 'University of Alaska Fairbanks', 'https://www.uaf.edu/bel/'],
+  ['KINGSBAY', 'Zeppelin Observatory', 'Arctic', 78.907, 11.889, 'Stockholm University / NILU', 'https://www.nilu.no/'],
+  ['PYRAMID', 'Pyramid International Laboratory', 'Himalaya', 28.214, 86.631, 'Ev-K2-CNR Committee', 'https://www.evk2cnr.org/'],
+  ['HIMANSH', 'Himansh Station', 'Himalaya', 32.408, 77.618, 'National Centre for Polar and Ocean Research', 'https://ncpor.res.in/']
+].map(([code, name, region, latitude, longitude, operator, sourceUrl]) => ({
+  code,
+  externalId: `catalog-${code.toLowerCase()}`,
+  name,
+  region,
+  subRegion: operator,
+  coordinates: { latitude, longitude },
+  status: 'Research station metadata',
+  description: `${name} is listed as a polar scientific facility by ${operator}.`,
+  instruments: [],
+  currentWeather: null,
+  telemetryHistory: [],
+  source: operator,
+  sourceUrl,
+  verificationStatus: 'Station metadata; live observations are not implied',
+  lastUpdated: new Date().toISOString()
+}));
+
+module.exports = globalStationCatalog;

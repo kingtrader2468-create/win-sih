@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { NavLink, Link, useLocation } from 'react-router-dom';
-import { Menu, X, LogOut, Sun, Moon, ChevronDown, Building2, Mail } from 'lucide-react';
+import { Menu, X, LogOut, Sun, Moon } from 'lucide-react';
 import { useAuth } from '../context/AuthContext.jsx';
 import { useTheme } from '../context/ThemeContext.jsx';
 import SearchModal from './SearchModal.jsx';
@@ -27,7 +27,9 @@ function Navbar() {
   const { isDark, toggleTheme } = useTheme();
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isDesktopSidebarOpen, setIsDesktopSidebarOpen] = useState(false);
   const [isMoreDropdownOpen, setIsMoreDropdownOpen] = useState(false);
+  const sidebarCloseTimer = useRef(null);
   const location = useLocation();
 
   useEffect(() => {
@@ -35,6 +37,10 @@ function Navbar() {
       if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
         e.preventDefault();
         setIsSearchOpen((prev) => !prev);
+      }
+      if (e.key === 'Escape') {
+        setIsMobileMenuOpen(false);
+        setIsMoreDropdownOpen(false);
       }
     };
     window.addEventListener('keydown', handleKeyDown);
@@ -44,7 +50,40 @@ function Navbar() {
   // Close dropdown on outside click or navigation
   useEffect(() => {
     setIsMoreDropdownOpen(false);
+    if (window.innerWidth < 1024) setIsMobileMenuOpen(false);
   }, [location.pathname]);
+
+  useEffect(() => {
+    window.dispatchEvent(new CustomEvent('polar-sidebar-toggle', {
+      detail: { open: isDesktopSidebarOpen }
+    }));
+  }, [isDesktopSidebarOpen]);
+
+  const toggleNavigation = () => {
+    if (window.innerWidth >= 1024) {
+      setIsDesktopSidebarOpen((open) => !open);
+      return;
+    }
+    setIsMobileMenuOpen((open) => !open);
+  };
+
+  const openSidebarOnHover = () => {
+    if (window.innerWidth < 1024) return;
+    if (sidebarCloseTimer.current) window.clearTimeout(sidebarCloseTimer.current);
+    setIsDesktopSidebarOpen(true);
+  };
+
+  const closeSidebarOnHoverLeave = () => {
+    if (window.innerWidth < 1024) return;
+    if (sidebarCloseTimer.current) window.clearTimeout(sidebarCloseTimer.current);
+    sidebarCloseTimer.current = window.setTimeout(() => {
+      setIsDesktopSidebarOpen(false);
+    }, 750);
+  };
+
+  useEffect(() => () => {
+    if (sidebarCloseTimer.current) window.clearTimeout(sidebarCloseTimer.current);
+  }, []);
 
   return (
     <>
@@ -180,93 +219,37 @@ function Navbar() {
               </div>
             )}
 
-            {/* Mobile Hamburger Button */}
+            {/* Navigation Drawer Toggle */}
             <button
-              className="md:hidden p-2 text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low rounded-lg transition-colors"
+              className="p-2 text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low rounded-lg transition-colors"
               type="button"
-              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              aria-label={isMobileMenuOpen ? 'Close navigation menu' : 'Open navigation menu'}
+              onClick={toggleNavigation}
+              onMouseEnter={openSidebarOnHover}
+              onMouseLeave={closeSidebarOnHoverLeave}
+              aria-label="Toggle navigation menu"
             >
-              {isMobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
+              <Menu
+                size={20}
+                className={isMobileMenuOpen || isDesktopSidebarOpen ? 'hidden' : 'block'}
+              />
+              <X
+                size={20}
+                className={isMobileMenuOpen || isDesktopSidebarOpen ? 'block' : 'hidden'}
+              />
             </button>
           </div>
         </div>
 
-        {/* 2. SUB NAVBAR: Responsive secondary navigation bar with all 9 requested items */}
-        <div className="w-full border-t border-surface-container-high/60 bg-surface-container-lowest/80 backdrop-blur-sm">
-          <div className="max-w-[1440px] mx-auto px-margin-sm lg:px-margin-lg">
-            <nav
-              className="flex items-center gap-1 sm:gap-2 overflow-x-auto scrollbar-none py-1.5"
-              aria-label="Sub navigation"
-            >
-              {subNavigation.map((link) => {
-                const isActive =
-                  link.to === '/'
-                    ? location.pathname === '/'
-                    : location.pathname.startsWith(link.to.split('#')[0]);
-
-                return (
-                  <NavLink
-                    key={link.to}
-                    to={link.to}
-                    className={`px-3 py-1 rounded-lg font-title-md text-body-sm whitespace-nowrap transition-all shrink-0 ${
-                      isActive
-                        ? 'bg-secondary-container text-on-secondary-container font-semibold shadow-2xs'
-                        : 'text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface'
-                    }`}
-                  >
-                    {link.label}
-                  </NavLink>
-                );
-              })}
-
-              {/* More Dropdown Menu */}
-              <div className="relative shrink-0">
-                <button
-                  type="button"
-                  onClick={() => setIsMoreDropdownOpen((prev) => !prev)}
-                  className={`px-3 py-1 rounded-lg font-title-md text-body-sm whitespace-nowrap transition-all flex items-center gap-1 shrink-0 ${
-                    location.pathname.startsWith('/more') || location.pathname.startsWith('/about') || location.pathname.startsWith('/contact')
-                      ? 'bg-secondary-container text-on-secondary-container font-semibold shadow-2xs'
-                      : 'text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface'
-                  }`}
-                >
-                  <span>More</span>
-                  <ChevronDown size={14} className={`transition-transform duration-200 ${isMoreDropdownOpen ? 'rotate-180' : ''}`} />
-                </button>
-
-                {isMoreDropdownOpen && (
-                  <div className="absolute left-0 sm:right-0 sm:left-auto top-full mt-1.5 w-44 rounded-xl bg-surface-container-lowest border border-surface-container-high shadow-lg p-1.5 z-50 flex flex-col gap-1">
-                    <NavLink
-                      to="/more/about"
-                      onClick={() => setIsMoreDropdownOpen(false)}
-                      className={({ isActive }) => `px-3 py-2 rounded-lg text-body-sm font-semibold transition-colors flex items-center gap-2 ${
-                        isActive ? 'bg-secondary-container text-on-secondary-container' : 'text-on-surface hover:bg-surface-container-low'
-                      }`}
-                    >
-                      <Building2 size={15} />
-                      <span>About Us</span>
-                    </NavLink>
-                    <NavLink
-                      to="/more/contact"
-                      onClick={() => setIsMoreDropdownOpen(false)}
-                      className={({ isActive }) => `px-3 py-2 rounded-lg text-body-sm font-semibold transition-colors flex items-center gap-2 ${
-                        isActive ? 'bg-secondary-container text-on-secondary-container' : 'text-on-surface hover:bg-surface-container-low'
-                      }`}
-                    >
-                      <Mail size={15} />
-                      <span>Contact Us</span>
-                    </NavLink>
-                  </div>
-                )}
-              </div>
-            </nav>
-          </div>
-        </div>
-
-        {/* 3. MOBILE NAVIGATION DRAWER */}
+        {/* LEFT NAVIGATION DRAWER */}
         {isMobileMenuOpen && (
-          <div className="md:hidden bg-surface-container-lowest border-t border-surface-container-high px-margin-sm py-space-md shadow-lg flex flex-col gap-space-xs animate-in fade-in duration-200">
+          <>
+          <button
+            type="button"
+            aria-label="Close navigation menu"
+            className="fixed inset-0 top-16 bg-slate-950/30 cursor-default lg:hidden"
+            onClick={() => setIsMobileMenuOpen(false)}
+          />
+          <aside className="fixed top-16 right-0 bottom-0 w-[min(86vw,340px)] bg-surface-container-lowest border-l border-surface-container-high px-margin-sm py-space-md shadow-2xl flex flex-col gap-space-xs overflow-y-auto animate-in slide-in-from-right duration-200 z-10 lg:hidden">
             <span className="text-outline font-label-sm text-[11px] uppercase tracking-wider px-3 mb-1">
               PORTAL NAVIGATION
             </span>
@@ -292,26 +275,6 @@ function Navbar() {
               );
             })}
 
-            <div className="my-space-xs border-t border-surface-container-high" />
-            <span className="text-outline font-label-sm text-[11px] uppercase tracking-wider px-3 mb-1">
-              MORE (INSTITUTIONAL)
-            </span>
-            <NavLink
-              to="/more/about"
-              onClick={() => setIsMobileMenuOpen(false)}
-              className="px-3 py-2 rounded-lg font-title-md text-body-md text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface flex items-center gap-2"
-            >
-              <Building2 size={16} />
-              <span>About Us</span>
-            </NavLink>
-            <NavLink
-              to="/more/contact"
-              onClick={() => setIsMobileMenuOpen(false)}
-              className="px-3 py-2 rounded-lg font-title-md text-body-md text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface flex items-center gap-2"
-            >
-              <Mail size={16} />
-              <span>Contact Us</span>
-            </NavLink>
             <div className="my-space-xs border-t border-surface-container-high" />
             {/* Mobile Theme Toggle */}
             <button
@@ -365,9 +328,48 @@ function Navbar() {
                 Sign In to Scholar Registry
               </Link>
             )}
-          </div>
+          </aside>
+          </>
         )}
       </header>
+
+      <aside
+        onMouseEnter={openSidebarOnHover}
+        onMouseLeave={closeSidebarOnHoverLeave}
+        className={`hidden lg:flex fixed top-0 right-0 bottom-0 w-64 z-[60] bg-surface-container-lowest border-l border-surface-container-high px-4 py-5 shadow-lg flex-col gap-2 overflow-y-auto transform transition-transform duration-[650ms] ease-in-out ${isDesktopSidebarOpen ? 'translate-x-0' : 'translate-x-full'}`}
+      >
+        <Link to="/" className="flex items-center gap-2 px-2 mb-5" onClick={() => setIsMobileMenuOpen(false)}>
+          <img alt="Logo" className="h-9 w-auto" src={logoIcon} />
+          <span className="font-headline-sm font-bold text-on-surface leading-tight">POLAR INDIA HUB</span>
+        </Link>
+        <span className="text-outline font-label-sm text-[11px] uppercase tracking-wider px-3 mb-1">Portal navigation</span>
+        {subNavigation.map((link) => {
+          const isActive = link.to === '/' ? location.pathname === '/' : location.pathname.startsWith(link.to);
+          return (
+            <NavLink
+              key={link.to}
+              to={link.to}
+              className={`px-3 py-2.5 rounded-lg font-title-md text-body-sm transition-all ${
+                isActive
+                  ? 'bg-secondary-container text-on-secondary-container font-semibold shadow-2xs'
+                  : 'text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface'
+              }`}
+            >
+              {link.label}
+            </NavLink>
+          );
+        })}
+        <div className="mt-auto border-t border-surface-container-high pt-3">
+          <button
+            type="button"
+            onClick={toggleTheme}
+            className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-on-surface-variant hover:bg-surface-container-low font-body-sm"
+          >
+            {isDark ? <Sun size={17} className="text-amber-400" /> : <Moon size={17} />}
+            <span>{isDark ? 'Light mode' : 'Dark mode'}</span>
+          </button>
+        </div>
+      </aside>
 
       {/* Ctrl+K Search Modal */}
       <SearchModal isOpen={isSearchOpen} onClose={() => setIsSearchOpen(false)} />

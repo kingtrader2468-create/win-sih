@@ -2,7 +2,13 @@ import { ArrowRight, CalendarDays, MapPin, Database, Cpu, Compass, FileCheck } f
 import { Link } from 'react-router-dom';
 
 function CatalogCard({ item, collection }) {
-  const label = collection === 'media' ? item.type : collection === 'stations' ? 'Station' : collection.slice(0, -1);
+  const label = collection === 'media'
+    ? item.type
+    : collection === 'stations'
+      ? 'Station'
+      : collection === 'publications'
+        ? 'Scholarly record'
+        : collection.slice(0, -1);
 
   const getBadgeClass = () => {
     switch (collection) {
@@ -21,6 +27,19 @@ function CatalogCard({ item, collection }) {
 
   return (
     <article className="bg-surface-container-lowest rounded-2xl p-space-lg shadow-sm hover:shadow-md transition-all flex flex-col justify-between group border border-surface-container-high/60">
+      {collection === 'media' && item.thumbnailUrl && (
+        <a href={item.sourceUrl || item.url} target="_blank" rel="noreferrer" className="mb-space-md block overflow-hidden rounded-xl bg-surface-container-low aspect-[16/9]">
+          <img
+            src={item.thumbnailUrl}
+            alt={item.title || 'NASA polar media'}
+            className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+            loading="lazy"
+            onError={(event) => {
+              event.currentTarget.style.display = 'none';
+            }}
+          />
+        </a>
+      )}
       <div>
         {/* Meta Bar */}
         <div className="flex flex-wrap items-center justify-between gap-space-xs mb-space-md">
@@ -33,18 +52,34 @@ function CatalogCard({ item, collection }) {
               {item.region}
             </span>
           )}
+          {item.category?.station && (
+            <span className="font-data-tabular text-label-sm text-outline">
+              {item.category.station}
+            </span>
+          )}
           {item.code && (
             <span className="font-data-tabular text-label-sm px-2 py-0.5 rounded bg-surface-container text-on-surface">
               {item.code}
+            </span>
+          )}
+          {collection === 'publications' && item.source && (
+            <span className="font-data-tabular text-label-sm px-2 py-0.5 rounded bg-surface-container text-on-surface">
+              Source: {item.source}
             </span>
           )}
         </div>
 
         {/* Title */}
         <h2 className="font-headline-sm text-headline-sm text-on-surface font-bold group-hover:text-primary transition-colors leading-snug mb-space-xs">
-          <Link to={`/${collection}/${item._id}`} className="hover:underline">
-            {item.title || item.name}
-          </Link>
+          {collection === 'media' && !item._id && item.sourceUrl ? (
+            <a href={item.sourceUrl} target="_blank" rel="noreferrer" className="hover:underline">
+              {item.title || item.name}
+            </a>
+          ) : (
+            <Link to={`/${collection}/${item._id}`} className="hover:underline">
+              {item.title || item.name}
+            </Link>
+          )}
         </h2>
 
         {/* Description / Abstract */}

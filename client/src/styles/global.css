@@ -220,7 +220,52 @@ html.dark .mobile-auth-btn {
 
 html.dark .mobile-auth-btn--primary {
   background: var(--color-primary);
-  color: #060d16 !important;
+  color: #0c0c0b !important;
   border-color: var(--color-primary);
 }
 
+html.dark .bg-surface-container-lowest {
+  background-color: #0c0c0b !important;
+}
+
+html.dark .bg-surface-container-low {
+  background-color: #151513 !important;
+}
+
+html.dark .bg-surface-container,
+html.dark .bg-surface-container-high {
+  background-color: #292927 !important;
+}
+
+html.dark .bg-primary,
+html.dark .bg-primary-container {
+  background-color: #ffffff !important;
+}
+
+html.dark .text-on-primary,
+html.dark .text-surface-container-lowest {
+  color: #0c0c0b !important;
+}
+
+html.dark .text-on-surface,
+html.dark .text-on-secondary-container {
+  color: #ffffff !important;
+}
+
+html.dark .text-on-surface-variant,
+html.dark .text-outline {
+  color: #d6d6d2 !important;
+}
+
+html.dark .border-surface-container-high,
+html.dark [class*="border-surface-container-high"] {
+  border-color: #333331 !important;
+}
+
+html.dark header,
+html.dark aside,
+html.dark footer {
+  background-color: #0c0c0b !important;
+  color: #ffffff !important;
+  border-color: #333331 !important;
+}

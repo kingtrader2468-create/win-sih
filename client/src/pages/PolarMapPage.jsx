@@ -1,7 +1,8 @@
 import { useState, useEffect, useMemo, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import L from 'leaflet';
-import 'leaflet/dist/leaflet.css';
+import * as maplibregl from 'maplibre-gl';
+import maplibreWorkerUrl from 'maplibre-gl/dist/maplibre-gl-worker.mjs?url';
+import 'maplibre-gl/dist/maplibre-gl.css';
 import {
   Compass,
   MapPin,
@@ -34,15 +35,19 @@ import {
 import {
   getMapStations,
   getMapLayers,
-  getMapProjects
+  getMapProjects,
+  getMapConfig
 } from '../services/apiClient.js';
 import { useTheme } from '../context/ThemeContext.jsx';
 import './PolarMapPage.css';
+
+maplibregl.setWorkerUrl(maplibreWorkerUrl);
 
 const regionsList = [
   { id: 'All', label: 'All Polar Domains', icon: Globe2 },
   { id: 'Antarctica', label: 'Antarctica (South Pole)', icon: Compass },
   { id: 'Arctic', label: 'Arctic (North Pole)', icon: Snowflake },
+  { id: 'Greenland', label: 'Greenland', icon: Snowflake },
   { id: 'Himalaya', label: 'Himalayas (Third Pole)', icon: Layers }
 ];
 
@@ -61,6 +66,7 @@ function PolarMapPage() {
   const [stations, setStations] = useState([]);
   const [layersData, setLayersData] = useState(null);
   const [projects, setProjects] = useState([]);
+  const [mapConfig, setMapConfig] = useState(null);
   const [selectedStation, setSelectedStation] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState(true);
@@ -68,9 +74,7 @@ function PolarMapPage() {
 
   const mapContainerRef = useRef(null);
   const mapInstanceRef = useRef(null);
-  const markersLayerRef = useRef(null);
-  const overlaysLayerRef = useRef(null);
-  const tileLayerRef = useRef(null);
+  const markersRef = useRef([]);
 
   useEffect(() => {
     let isMounted = true;
@@ -80,8 +84,9 @@ function PolarMapPage() {
       getMapStations(),
       getMapLayers(),
       getMapProjects()
+      , getMapConfig()
     ])
-      .then(([stationsRes, layersRes, projectsRes]) => {
+      .then(([stationsRes, layersRes, projectsRes, mapConfigRes]) => {
         if (!isMounted) return;
         if (stationsRes.stations) {
           setStations(stationsRes.stations);
@@ -89,6 +94,7 @@ function PolarMapPage() {
         }
         if (layersRes.layers) setLayersData(layersRes.layers);
         if (projectsRes.projects) setProjects(projectsRes.projects);
+        setMapConfig(mapConfigRes);
       })
       .catch((err) => {
         if (!isMounted) return;
@@ -109,68 +115,61 @@ function PolarMapPage() {
     return stations.filter((station) => {
       const matchRegion =
         selectedRegion === 'All' ||
-        station.region.toLowerCase() === selectedRegion.toLowerCase();
+        station.region?.toLowerCase() === selectedRegion.toLowerCase();
       const matchSearch =
         !searchQuery ||
         station.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        station.subRegion.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        station.code.toLowerCase().includes(searchQuery.toLowerCase());
+        station.subRegion?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        station.code?.toLowerCase().includes(searchQuery.toLowerCase());
       return matchRegion && matchSearch;
     });
   }, [stations, selectedRegion, searchQuery]);
 
   // Current active layer details
   const currentLayerData = layersData ? layersData[activeLayer] : null;
+  const selectedWeather = selectedStation?.currentWeather;
 
-  // Initialize Leaflet Map
+  // Initialize a lightweight WebGL globe using MapTiler vector tiles.
   useEffect(() => {
     if (!mapContainerRef.current || mapInstanceRef.current) return;
 
-    const map = L.map(mapContainerRef.current, {
-      zoomControl: false,
-      minZoom: 2,
-      maxZoom: 18,
-      worldCopyJump: true
-    }).setView([-25, 45], 2);
-
-    L.control.zoom({ position: 'topright' }).addTo(map);
-
-    const tileUrl = isDark
-      ? 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png'
-      : 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png';
-
-    const tileLayer = L.tileLayer(tileUrl, {
-      attribution: '&copy; OpenStreetMap contributors &copy; CARTO',
-      subdomains: 'abcd',
-      maxZoom: 19
-    }).addTo(map);
-
-    tileLayerRef.current = tileLayer;
-    markersLayerRef.current = L.layerGroup().addTo(map);
-    overlaysLayerRef.current = L.layerGroup().addTo(map);
+    const map = new maplibregl.Map({
+      container: mapContainerRef.current,
+      style: mapConfig?.styleUrl || 'https://demotiles.maplibre.org/style.json',
+      center: [45, -25],
+      zoom: 1.8,
+      minZoom: 1,
+      maxZoom: 16,
+      projection: 'globe',
+      attributionControl: true
+    });
+    map.addControl(new maplibregl.NavigationControl(), 'top-right');
+    map.on('load', () => map.resize());
+    map.on('error', (event) => {
+      console.error('Polar map rendering error:', event.error);
+    });
     mapInstanceRef.current = map;
 
     return () => {
+      markersRef.current.forEach((marker) => marker.remove());
+      markersRef.current = [];
       map.remove();
       mapInstanceRef.current = null;
     };
-  }, []);
+  }, [mapConfig]);
 
-  // Tile layer switch on Theme change
   useEffect(() => {
-    if (!tileLayerRef.current) return;
-    const tileUrl = isDark
-      ? 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png'
-      : 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png';
-    tileLayerRef.current.setUrl(tileUrl);
-  }, [isDark]);
+    const handleResize = () => mapInstanceRef.current?.resize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const handleStationSelect = (st) => {
     setSelectedStation(st);
     const lat = st.coordinates?.latitude ?? st.coordinates?.lat;
     const lng = st.coordinates?.longitude ?? st.coordinates?.lng;
     if (mapInstanceRef.current && lat !== undefined && lng !== undefined) {
-      mapInstanceRef.current.flyTo([lat, lng], 6, { duration: 1.2 });
+      mapInstanceRef.current.flyTo({ center: [lng, lat], zoom: 6, duration: 1200 });
     }
   };
 
@@ -179,99 +178,50 @@ function PolarMapPage() {
     if (!mapInstanceRef.current) return;
 
     if (regId === 'Antarctica') {
-      mapInstanceRef.current.flyTo([-72, 45], 3, { duration: 1.2 });
+      mapInstanceRef.current.flyTo({ center: [45, -72], zoom: 2.8, duration: 1000 });
     } else if (regId === 'Arctic') {
-      mapInstanceRef.current.flyTo([78.5, 15], 4, { duration: 1.2 });
+      mapInstanceRef.current.flyTo({ center: [15, 78.5], zoom: 3.2, duration: 1000 });
     } else if (regId === 'Himalaya') {
-      mapInstanceRef.current.flyTo([32.4, 78], 5, { duration: 1.2 });
+      mapInstanceRef.current.flyTo({ center: [78, 32.4], zoom: 5, duration: 1000 });
+    } else if (regId === 'Greenland') {
+      mapInstanceRef.current.flyTo({ center: [-42, 72], zoom: 4, duration: 1000 });
     } else {
-      mapInstanceRef.current.flyTo([-10, 30], 2, { duration: 1.2 });
+      mapInstanceRef.current.flyTo({ center: [30, -10], zoom: 1.8, duration: 1000 });
     }
   };
 
-  // Render Station Markers on Map
   useEffect(() => {
-    if (!mapInstanceRef.current || !markersLayerRef.current) return;
-    markersLayerRef.current.clearLayers();
-
+    if (!mapInstanceRef.current) return;
+    markersRef.current.forEach((marker) => marker.remove());
+    markersRef.current = [];
     filteredStations.forEach((st) => {
       const lat = st.coordinates?.latitude ?? st.coordinates?.lat;
       const lng = st.coordinates?.longitude ?? st.coordinates?.lng;
       if (lat === undefined || lng === undefined) return;
-
-      const isSelected = selectedStation?.code === st.code;
-
-      const customIcon = L.divIcon({
-        className: 'polar-leaflet-marker-wrapper',
-        html: `
-          <div class="polar-station-marker">
-            <div class="polar-marker-pulse ${isSelected ? 'active' : ''}"></div>
-            <div class="polar-marker-dot ${isSelected ? 'active' : ''}"></div>
-            <div class="polar-marker-badge ${isSelected ? 'active' : ''}">${st.name.split(' ')[0]}</div>
-          </div>
-        `,
-        iconSize: [32, 32],
-        iconAnchor: [16, 16],
-        popupAnchor: [0, -18]
+      const marker = document.createElement('button');
+      marker.className = `polar-map-marker polar-map-marker--station${selectedStation?.code === st.code ? ' is-selected' : ''}`;
+      marker.type = 'button';
+      marker.title = st.name;
+      marker.innerHTML = '<span></span>';
+      marker.addEventListener('click', () => {
+        setSelectedStation(st);
+        mapInstanceRef.current?.flyTo({ center: [lng, lat], zoom: 6, duration: 800 });
       });
-
-      const marker = L.marker([lat, lng], { icon: customIcon });
-
-      marker.bindPopup(`
-        <div style="font-family: inherit; min-width: 170px;">
-          <div style="font-weight: 700; font-size: 13px; margin-bottom: 2px; color: ${isDark ? '#38bdf8' : '#0284c7'};">${st.name}</div>
-          <div style="font-size: 11px; opacity: 0.8; margin-bottom: 6px;">${st.subRegion || st.region} · Est. ${st.established || st.establishedYear || 'N/A'}</div>
-          <div style="display: flex; gap: 8px; font-size: 12px; margin-bottom: 6px;">
-            <span>🌡️ <b>${st.currentWeather?.temperature ?? '-'}°C</b></span>
-            <span>💨 <b>${st.currentWeather?.windSpeed ?? '-'}</b></span>
-          </div>
-          <div style="font-size: 11px; color: #10b981; font-weight: 600;">Status: Operational</div>
-        </div>
-      `, { className: 'polar-leaflet-popup' });
-
-      marker.on('click', () => {
-        handleStationSelect(st);
-      });
-
-      marker.addTo(markersLayerRef.current);
+      const popup = new maplibregl.Popup({ offset: 18 }).setHTML(`<strong>${st.name}</strong><br/>${st.subRegion || st.region}<br/>Temperature: ${st.currentWeather?.temperature ?? 'Unavailable'} C<br/>Wind: ${st.currentWeather?.windSpeed ?? 'Unavailable'} m/s<br/>Weather: ${st.weatherStatus || 'Unavailable'}<br/>Status: ${st.status || 'Operational'}`);
+      markersRef.current.push(new maplibregl.Marker({ element: marker }).setLngLat([lng, lat]).setPopup(popup).addTo(mapInstanceRef.current));
     });
-  }, [filteredStations, selectedStation, isDark]);
-
-  // Polar Geospatial Boundary Overlays based on activeLayer
-  useEffect(() => {
-    if (!mapInstanceRef.current || !overlaysLayerRef.current) return;
-    overlaysLayerRef.current.clearLayers();
-
-    const layerColors = {
-      climate: '#1ea7e8',
-      ocean: '#0ea5e9',
-      ice: '#38bdf8',
-      temperature: '#f43f5e',
-      atmosphere: '#10b981'
-    };
-    const color = layerColors[activeLayer] || '#1ea7e8';
-
-    const antarcticCircle = L.circle([-90, 0], {
-      radius: 2600000,
-      color,
-      weight: 1.5,
-      dashArray: '6, 6',
-      fillColor: color,
-      fillOpacity: 0.08
+    projects.filter((project) => selectedRegion === 'All' || project.region === selectedRegion).forEach((project) => {
+      const lat = project.coordinates?.latitude;
+      const lng = project.coordinates?.longitude;
+      if (lat === undefined || lng === undefined) return;
+      const marker = document.createElement('button');
+      marker.className = 'polar-map-marker polar-map-marker--project';
+      marker.type = 'button';
+      marker.title = project.title;
+      marker.innerHTML = '<span></span>';
+      markersRef.current.push(new maplibregl.Marker({ element: marker }).setLngLat([lng, lat]).setPopup(new maplibregl.Popup({ offset: 16 }).setHTML(`<strong>${project.title}</strong><br/>${project.discipline}<br/>${project.summary}`)).addTo(mapInstanceRef.current));
     });
-
-    const arcticCircle = L.circle([90, 0], {
-      radius: 2600000,
-      color,
-      weight: 1.5,
-      dashArray: '6, 6',
-      fillColor: color,
-      fillOpacity: 0.08
-    });
-
-    antarcticCircle.addTo(overlaysLayerRef.current);
-    arcticCircle.addTo(overlaysLayerRef.current);
-  }, [activeLayer]);
+  }, [filteredStations, projects, selectedStation, selectedRegion, activeLayer]);
 
   return (
     <div className="polar-map-page w-full min-h-[calc(100vh-80px)] bg-surface-container-lowest flex flex-col">
@@ -360,9 +310,6 @@ function PolarMapPage() {
       <div className="bg-surface-container-low/80 border-b border-surface-container-high/70 backdrop-blur-sm sticky top-16 z-30">
         <div className="max-w-[1440px] mx-auto px-margin-sm lg:px-margin-lg py-2 flex items-center justify-between gap-3 overflow-x-auto scrollbar-none">
           <div className="flex items-center gap-2">
-            <span className="font-label-sm text-label-sm font-bold uppercase tracking-wider text-outline shrink-0 hidden sm:inline">
-              Data Layers:
-            </span>
             <div className="flex items-center gap-1.5">
               {layersList.map((layer) => {
                 const Icon = layer.icon;
@@ -419,7 +366,11 @@ function PolarMapPage() {
               <div className="absolute bottom-4 left-4 z-20 flex items-center gap-2">
                 <button
                   type="button"
-                  onClick={() => handleRegionSelect('All')}
+                  onClick={() => {
+                    handleRegionSelect('All');
+                    mapContainerRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    mapInstanceRef.current?.resize();
+                  }}
                   className="px-3 py-1.5 rounded-lg bg-slate-900/85 hover:bg-slate-800 text-sky-300 border border-sky-400/30 text-xs font-semibold backdrop-blur-md transition-all shadow-md flex items-center gap-1.5 cursor-pointer"
                 >
                   <Globe2 size={13} />
@@ -532,11 +483,17 @@ function PolarMapPage() {
             <div className="station-inspector-card rounded-2xl border border-surface-container-high/80 bg-surface-container-lowest p-5 shadow-sm flex flex-col gap-5 sticky top-28">
               {/* Header with image */}
               <div className="relative rounded-xl overflow-hidden h-40 bg-surface-container">
-                <img
-                  src={selectedStation.image}
-                  alt={selectedStation.name}
-                  className="w-full h-full object-cover"
-                />
+                {selectedStation.image ? (
+                  <img
+                    src={selectedStation.image}
+                    alt={`${selectedStation.name} station`}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center bg-slate-900 text-slate-300 text-sm">
+                    Related polar image unavailable
+                  </div>
+                )}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent flex flex-col justify-end p-3.5 text-white">
                   <span className="inline-block px-2 py-0.5 rounded bg-primary text-[10px] font-bold tracking-wider uppercase mb-1 w-max">
                     {selectedStation.region} · Established {selectedStation.established}
@@ -564,46 +521,46 @@ function PolarMapPage() {
               {/* Current Telemetry Matrix */}
               <div>
                 <h4 className="font-label-sm text-label-sm uppercase tracking-wider text-outline font-bold mb-2">
-                  Live Sensor Telemetry
+                  Live Weather · Open-Meteo
                 </h4>
                 <div className="grid grid-cols-2 gap-2 font-data-tabular">
                   <div className="p-3 rounded-lg bg-surface-container-low border border-surface-container-high">
                     <span className="text-[11px] text-outline block">Ambient Temp</span>
                     <span className="font-headline-sm text-headline-sm font-bold text-primary">
-                      {selectedStation.currentWeather.temperature}°C
+                      {selectedWeather?.temperature ?? 'Unavailable'}{selectedWeather?.temperature != null ? '°C' : ''}
                     </span>
                     <span className="text-[10px] text-outline block mt-0.5">
-                      Wind Chill: {selectedStation.currentWeather.apparentTemp}°C
+                      Feels like: {selectedWeather?.apparentTemp ?? 'Unavailable'}{selectedWeather?.apparentTemp != null ? '°C' : ''}
                     </span>
                   </div>
 
                   <div className="p-3 rounded-lg bg-surface-container-low border border-surface-container-high">
                     <span className="text-[11px] text-outline block">Wind Velocity</span>
                     <span className="font-headline-sm text-headline-sm font-bold text-on-surface">
-                      {selectedStation.currentWeather.windSpeed}
+                      {selectedWeather?.windSpeed ?? 'Unavailable'}{selectedWeather?.windSpeed != null ? ' km/h' : ''}
                     </span>
                     <span className="text-[10px] text-outline block mt-0.5">
-                      {selectedStation.currentWeather.windDirection}
+                      {selectedWeather?.windDirection != null ? `${selectedWeather.windDirection}° direction` : 'Unavailable'}
                     </span>
                   </div>
 
                   <div className="p-3 rounded-lg bg-surface-container-low border border-surface-container-high">
                     <span className="text-[11px] text-outline block">Barometric Press.</span>
                     <span className="font-title-md text-body-md font-bold text-on-surface">
-                      {selectedStation.currentWeather.pressure}
+                      {selectedWeather?.pressure ?? 'Unavailable'}{selectedWeather?.pressure != null ? ' hPa' : ''}
                     </span>
                     <span className="text-[10px] text-outline block mt-0.5">
-                      Hum: {selectedStation.currentWeather.humidity}
+                      Humidity: {selectedWeather?.humidity ?? 'Unavailable'}{selectedWeather?.humidity != null ? '%' : ''}
                     </span>
                   </div>
 
                   <div className="p-3 rounded-lg bg-surface-container-low border border-surface-container-high">
                     <span className="text-[11px] text-outline block">Cryo / Ice State</span>
                     <span className="font-title-md text-body-sm font-bold text-on-surface line-clamp-1">
-                      {selectedStation.currentWeather.iceThickness}
+                      {selectedWeather?.iceThickness ?? 'Unavailable'}
                     </span>
                     <span className="text-[10px] text-outline block mt-0.5">
-                      Rad: {selectedStation.currentWeather.solarRadiation}
+                      Rad: {selectedWeather?.solarRadiation ?? 'Unavailable'}
                     </span>
                   </div>
                 </div>

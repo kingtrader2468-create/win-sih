@@ -44,7 +44,7 @@ async function getQuizById(request, response) {
     const quiz = await Quiz.findById(id).populate('researchResource', 'title region year').lean();
     if (!quiz) return response.status(404).json({ error: { message: 'Quiz not found.' } });
 
-    const questions = (quiz.questions || []).slice(0, 5).map(({ prompt, options, explanation }, index) => ({
+    const questions = (quiz.questions || []).slice(0, 15).map(({ prompt, options, explanation }, index) => ({
       index,
       prompt,
       options,
@@ -65,10 +65,25 @@ async function getQuizById(request, response) {
   }
 }
 
+async function getQuizByLevel(request, response) {
+  const levels = ['easy', 'moderate', 'challenging', 'advanced', 'expert'];
+  const difficulty = String(request.params.level || '').toLowerCase();
+  if (!levels.includes(difficulty)) return response.status(400).json({ error: { message: 'Invalid quiz level.' } });
+  const quiz = await Quiz.findOne({ difficulty, status: { $in: ['published', 'prototype-demo'] } }).lean();
+  if (!quiz) return response.status(404).json({ error: { message: 'This quiz level is not available yet.' } });
+  return response.json({ quiz: {
+    _id: quiz._id,
+    title: quiz.title,
+    description: quiz.description,
+    difficulty: quiz.difficulty,
+    questions: quiz.questions.slice(0, 15).map(({ prompt, options, explanation }, index) => ({ index, prompt, options, explanation }))
+  } });
+}
+
 async function getQuizForResearch(request, response) {
   const quiz = await Quiz.findOne({ researchResource: request.params.resourceId, status: { $in: ['published', 'prototype-demo'] } }).lean();
   if (!quiz) return response.status(404).json({ error: { message: 'No quiz is available for this research resource.' } });
-  const questions = (quiz.questions || []).slice(0, 5).map(({ prompt, options, explanation }, index) => ({ index, prompt, options, explanation }));
+  const questions = (quiz.questions || []).slice(0, 15).map(({ prompt, options, explanation }, index) => ({ index, prompt, options, explanation }));
   return response.json({ quiz: { _id: quiz._id, title: quiz.title, description: quiz.description, questions } });
 }
 
@@ -76,7 +91,7 @@ async function completeQuiz(request, response) {
   const quiz = await Quiz.findById(request.params.quizId).lean();
   if (!quiz) return response.status(404).json({ error: { message: 'Quiz not found.' } });
   const answers = Array.isArray(request.body.answers) ? request.body.answers : [];
-  const questions = (quiz.questions || []).slice(0, 5);
+  const questions = (quiz.questions || []).slice(0, 15);
   const correctAnswers = questions.filter((question, index) => answers[index] === question.answer).length;
   const score = questions.length > 0 ? Math.round((correctAnswers / questions.length) * 100) : 0;
   const progress = await getProgressRecord(request);
@@ -112,4 +127,4 @@ async function completeQuiz(request, response) {
   });
 }
 
-module.exports = { listQuizzes, getQuizById, getQuizForResearch, completeQuiz };
+module.exports = { listQuizzes, getQuizById, getQuizByLevel, getQuizForResearch, completeQuiz };

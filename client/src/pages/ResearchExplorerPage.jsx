@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { AlertCircle, ChevronLeft, ChevronRight, FileSearch } from 'lucide-react';
+import { AlertCircle, ChevronLeft, ChevronRight, FileSearch, MapPin, ArrowLeft, SlidersHorizontal } from 'lucide-react';
 import FilterBar from '../components/FilterBar.jsx';
 import ResearchCard from '../components/ResearchCard.jsx';
 import SearchBar from '../components/SearchBar.jsx';
@@ -9,12 +9,13 @@ import './ResearchExplorerPage.css';
 const initialFilters = {
   search: '',
   region: '',
+  station: '',
   type: '',
   researchArea: '',
   year: '',
   sort: 'newest',
   page: 1,
-  limit: 6
+  limit: 12
 };
 
 function ResearchExplorerPage() {
@@ -23,8 +24,10 @@ function ResearchExplorerPage() {
     items: [],
     pagination: { page: 1, total: 0, totalPages: 1 },
     filters: {}
+    , stationGroups: []
   });
   const [status, setStatus] = useState('loading');
+  const [filtersOpen, setFiltersOpen] = useState(false);
   const [error, setError] = useState('');
   const query = useMemo(() => filters, [filters]);
 
@@ -59,8 +62,16 @@ function ResearchExplorerPage() {
 
   function clearFilters() {
     setStatus('loading');
-    setFilters(initialFilters);
+    setResult((current) => ({ ...current, items: [], stationGroups: [] }));
+    setFilters({ ...initialFilters });
   }
+
+  function selectStation(station) {
+    setStatus('loading');
+    setFilters((current) => ({ ...current, station, page: 1 }));
+  }
+
+  const selectedStation = filters.station;
 
   function goToPage(page) {
     setStatus('loading');
@@ -83,19 +94,31 @@ function ResearchExplorerPage() {
               Research Explorer
             </h1>
             <p className="font-body-md text-body-md text-on-surface-variant max-w-2xl mt-1 leading-relaxed">
-              Browse source-linked papers, field telemetry reports, and observational monographs across India’s polar campaigns.
+              Select a polar region first, then browse all research records from that region.
             </p>
           </div>
 
           <div className="shrink-0">
             <span className="inline-flex items-center px-3 py-1 rounded-full bg-surface-container-low text-primary font-data-tabular text-label-sm font-semibold border border-surface-container-high/60">
-              {status === 'success' ? `${result.pagination.total} authoritative records` : 'Loading records…'}
+              {status === 'success'
+                ? selectedStation ? `${result.pagination.total} regional records` : `${(result.stationGroups || []).length} polar regions`
+                : 'Loading records…'}
             </span>
           </div>
         </div>
 
         {/* Filter Controls Box */}
-        <div className="bg-surface-container-low rounded-2xl p-space-md lg:p-space-lg mb-space-xl border border-surface-container-high/60 shadow-2xs">
+        <div className="mb-space-xl">
+          <button
+            type="button"
+            onClick={() => setFiltersOpen((open) => !open)}
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-surface-container-low border border-surface-container-high text-on-surface font-label-md font-semibold"
+            aria-expanded={filtersOpen}
+          >
+            <SlidersHorizontal size={16} />
+            {filtersOpen ? 'Hide filters' : 'Show filters'}
+          </button>
+          {filtersOpen && <div className="bg-surface-container-low rounded-2xl p-space-md lg:p-space-lg mt-space-sm border border-surface-container-high/60 shadow-2xs">
           <div className="flex flex-col gap-space-md">
             <SearchBar
               value={filters.search}
@@ -108,6 +131,7 @@ function ResearchExplorerPage() {
               onClear={clearFilters}
             />
           </div>
+          </div>}
         </div>
 
         {/* Loading State */}
@@ -144,7 +168,7 @@ function ResearchExplorerPage() {
         )}
 
         {/* Empty State */}
-        {status === 'success' && result.items.length === 0 && (
+        {status === 'success' && selectedStation && result.items.length === 0 && (
           <div className="bg-surface-container-lowest rounded-2xl p-space-2xl border border-surface-container-high/60 text-center flex flex-col items-center justify-center min-h-[300px] shadow-sm">
             <div className="w-12 h-12 rounded-xl bg-surface-container-low flex items-center justify-center text-outline mb-3">
               <FileSearch aria-hidden="true" size={24} />
@@ -165,14 +189,49 @@ function ResearchExplorerPage() {
           </div>
         )}
 
-        {/* Success Grid */}
-        {status === 'success' && result.items.length > 0 && (
+        {status === 'success' && !selectedStation && (result.stationGroups || []).length > 0 && (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-gutter-lg">
+            {(result.stationGroups || []).map((group) => (
+              <button
+                key={group.station}
+                type="button"
+                onClick={() => selectStation(group.station)}
+                className="text-left bg-surface-container-lowest rounded-2xl p-space-lg shadow-sm hover:shadow-md hover:border-primary transition-all border border-surface-container-high/60"
+              >
+                <div className="flex items-center justify-between gap-3 mb-space-md">
+                  <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-primary-fixed text-on-primary-fixed-variant font-label-sm font-bold">
+                    <MapPin size={14} /> {group.region}
+                  </span>
+                  <span className="font-data-tabular text-label-sm text-outline">{group.count} records</span>
+                </div>
+                <h2 className="font-headline-sm text-headline-sm text-on-surface font-bold mb-2">{group.station}</h2>
+                <p className="font-body-sm text-body-sm text-on-surface-variant">
+                  Open category records
+                </p>
+              </button>
+            ))}
+          </div>
+        )}
+
+        {status === 'success' && selectedStation && (
           <>
+            <button
+              type="button"
+              onClick={() => setFilters((current) => ({ ...current, station: '', page: 1 }))}
+              className="inline-flex items-center gap-2 mb-space-lg text-primary font-label-md font-semibold"
+            >
+              <ArrowLeft size={16} /> Back to polar regions
+            </button>
+            <h2 className="font-headline-md text-headline-md text-on-surface font-bold mb-space-lg">
+              Research at {selectedStation}
+            </h2>
+          {result.items.length > 0 && (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-gutter-lg">
               {result.items.map((resource) => (
                 <ResearchCard key={resource._id} resource={resource} />
               ))}
             </div>
+          )}
 
             {/* Pagination Controls */}
             {result.pagination.totalPages > 1 && (

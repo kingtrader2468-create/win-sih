@@ -209,6 +209,12 @@ export async function getQuizForResearch(resourceId, signal) {
   return response.json();
 }
 
+export async function getQuizByLevel(level, signal) {
+  const response = await fetch(`${apiBaseUrl}/quizzes/level/${level}`, { signal, headers: getAuthHeaders() });
+  if (!response.ok) throw new Error('This quiz level is not available yet.');
+  return response.json();
+}
+
 export async function completeQuiz(quizId, answers) {
   const response = await fetch(`${apiBaseUrl}/quizzes/${quizId}/complete`, {
     method: 'POST',
@@ -313,6 +319,12 @@ export async function getProfile(signal) {
 export async function getMapStations(signal) {
   const response = await fetch(`${apiBaseUrl}/map/stations`, { signal, headers: getAuthHeaders() });
   if (!response.ok) throw new Error('Unable to load polar research stations.');
+  return response.json();
+}
+
+export async function getMapConfig(signal) {
+  const response = await fetch(`${apiBaseUrl}/map/config`, { signal, headers: getAuthHeaders() });
+  if (!response.ok) throw new Error('Unable to load map configuration.');
   return response.json();
 }
 

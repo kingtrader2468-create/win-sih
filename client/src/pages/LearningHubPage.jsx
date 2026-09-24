@@ -9,7 +9,8 @@ import {
   HelpCircle,
   AlertCircle
 } from 'lucide-react';
-import { getDashboard, getResearch } from '../services/apiClient.js';
+import { getDashboard, getResearch, getQuizByLevel } from '../services/apiClient.js';
+import QuizCard from '../components/QuizCard.jsx';
 import './LearningHubPage.css';
 
 const journeyMilestones = [
@@ -24,6 +25,10 @@ const journeyMilestones = [
 function LearningHubPage() {
   const [dashboard, setDashboard] = useState(null);
   const [recommended, setRecommended] = useState([]);
+  const [featuredQuiz, setFeaturedQuiz] = useState(null);
+  const [selectedLevel, setSelectedLevel] = useState('easy');
+  const [quizStarted, setQuizStarted] = useState(false);
+  const [quizLoading, setQuizLoading] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
@@ -50,6 +55,25 @@ function LearningHubPage() {
   const progress = dashboard?.userProgress;
   const recentResource = progress?.recentResearch?.[0]?.resource || recommended[0];
   const savedMysteries = progress?.savedMysteries || [];
+
+  function startQuizSelection() {
+    setQuizStarted(true);
+    requestAnimationFrame(() => document.getElementById('learning-quiz-levels')?.scrollIntoView({ behavior: 'smooth', block: 'center' }));
+  }
+
+  async function loadSelectedQuiz() {
+    setQuizLoading(true);
+    try {
+      const data = await getQuizByLevel(selectedLevel);
+      setFeaturedQuiz(data.quiz);
+      requestAnimationFrame(() => document.getElementById('learning-quiz')?.scrollIntoView({ behavior: 'smooth', block: 'start' }));
+    } catch {
+      setFeaturedQuiz(null);
+      setError('This quiz level is not available yet.');
+    } finally {
+      setQuizLoading(false);
+    }
+  }
 
   if (loading) {
     return (
@@ -188,7 +212,7 @@ function LearningHubPage() {
           {/* LEFT COLUMN: Quizzes & Recommended Studies */}
           <div className="lg:col-span-8 flex flex-col gap-space-xl">
             {/* RESEARCH-LINKED QUIZZES */}
-            <section className="bg-surface-container-lowest rounded-2xl p-space-lg shadow-sm border border-surface-container-high/60">
+            <section id="learning-quiz" className="bg-surface-container-lowest rounded-2xl p-space-lg shadow-sm border border-surface-container-high/60">
               <div className="flex items-center justify-between gap-space-sm mb-space-md">
                 <div className="flex items-center gap-2">
                   <HelpCircle size={20} className="text-primary" />
@@ -201,11 +225,50 @@ function LearningHubPage() {
                 </span>
               </div>
 
+              {!quizStarted && !featuredQuiz && (
+                <div className="flex flex-col items-center text-center py-space-lg">
+                  <p className="font-body-md text-body-md text-on-surface-variant max-w-xl mb-space-md">
+                    Choose a difficulty level and complete 15 questions grounded in real polar research.
+                  </p>
+                  <button type="button" onClick={startQuizSelection} className="inline-flex items-center gap-2 px-5 py-3 rounded-lg bg-primary text-surface-container-lowest font-label-md font-semibold hover:bg-primary/90 transition-colors">
+                    <span>Start Quiz</span>
+                    <ArrowRight size={16} />
+                  </button>
+                </div>
+              )}
+
+              {quizStarted && !featuredQuiz && <div id="learning-quiz-levels" className="mb-space-lg">
+              <p className="font-body-sm text-body-sm text-on-surface-variant mb-space-sm">Select your level:</p>
+              <div className="grid grid-cols-2 md:grid-cols-5 gap-space-xs" aria-label="Choose quiz difficulty">
+                {[
+                  ['easy', 'Easy'],
+                  ['moderate', 'Moderate'],
+                  ['challenging', 'Challenging'],
+                  ['advanced', 'Advanced'],
+                  ['expert', 'Expert']
+                ].map(([value, label]) => (
+                  <button
+                    key={value}
+                    type="button"
+                    onClick={() => setSelectedLevel(value)}
+                    className={`px-3 py-2 rounded-lg border font-label-md text-label-md font-semibold transition-colors ${selectedLevel === value ? 'bg-primary text-surface-container-lowest border-primary' : 'bg-surface-container-low text-on-surface border-surface-container-high hover:border-primary'}`}
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
+              <button type="button" onClick={loadSelectedQuiz} disabled={quizLoading} className="mt-space-md inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-tertiary text-on-tertiary font-label-md font-semibold disabled:opacity-50">
+                {quizLoading ? 'Loading quiz…' : 'Begin Level'}
+                <ArrowRight size={15} />
+              </button>
+              </div>}
+
               <p className="font-body-sm text-body-sm text-on-surface-variant mb-space-lg leading-relaxed">
                 Test your understanding of methodology, observational datasets, and findings directly extracted from peer-reviewed studies.
               </p>
 
-              <div className="flex flex-col gap-space-sm">
+              {featuredQuiz && <QuizCard quiz={featuredQuiz} />}
+              <div className="flex flex-col gap-space-sm mt-space-md">
                 {recommended.slice(0, 3).map((res) => (
                   <div
                     key={res._id}
@@ -219,16 +282,9 @@ function LearningHubPage() {
                         Quiz: {res.title}
                       </h3>
                       <p className="font-body-sm text-label-sm text-on-surface-variant">
-                        5 multiple-choice questions on measurement techniques and empirical evidence.
+                        Source-grounded polar study available in the quiz levels above.
                       </p>
                     </div>
-                    <Link
-                      to={`/research/${res._id}`}
-                      className="inline-flex items-center gap-1.5 py-2 px-4 rounded-lg bg-surface-container-lowest text-primary hover:bg-primary hover:text-surface-container-lowest font-label-md text-label-md font-semibold transition-colors shadow-2xs shrink-0"
-                    >
-                      <span>Take Quiz</span>
-                      <ArrowRight size={14} />
-                    </Link>
                   </div>
                 ))}
               </div>
@@ -332,7 +388,7 @@ function LearningHubPage() {
                     East Antarctic coastal warming puzzle ready for student investigation.
                   </p>
                   <Link
-                    to="/mystery/000000000000000000000001"
+                    to="/mystery"
                     className="py-2 px-4 rounded-lg bg-primary-container text-surface-container-lowest font-label-md text-label-md font-semibold hover:bg-primary transition-all shadow-2xs"
                   >
                     Investigate Mystery

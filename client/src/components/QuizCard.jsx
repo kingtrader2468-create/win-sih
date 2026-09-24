@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { CheckCircle2, ShieldCheck, RotateCcw, Award } from 'lucide-react';
+import { CheckCircle2, ShieldCheck, RotateCcw, Award, X } from 'lucide-react';
 import { completeQuiz } from '../services/apiClient.js';
 import './QuizCard.css';
 
@@ -8,11 +8,13 @@ function QuizCard({ quiz }) {
   const [result, setResult] = useState(null);
   const [error, setError] = useState('');
   const [submitting, setSubmitting] = useState(false);
+  const [showResultModal, setShowResultModal] = useState(false);
 
   async function submit(event) {
     event.preventDefault();
     if (Object.keys(answers).length !== quiz.questions.length) {
-      setError('Please provide an inductive deduction for every question before submitting.');
+      const unanswered = quiz.questions.length - Object.keys(answers).length;
+      setError(`Please answer every question before submitting. ${unanswered} question${unanswered === 1 ? '' : 's'} remaining.`);
       return;
     }
     setSubmitting(true);
@@ -23,6 +25,7 @@ function QuizCard({ quiz }) {
         quiz.questions.map((_, index) => answers[index])
       );
       setResult(data);
+      setShowResultModal(true);
     } catch (requestError) {
       setError(requestError.message);
     } finally {
@@ -32,13 +35,45 @@ function QuizCard({ quiz }) {
 
   function handleReset() {
     setResult(null);
+    setShowResultModal(false);
     setAnswers({});
     setError('');
   }
 
   if (result) {
     return (
-      <section className="quiz-card quiz-card--completed">
+      <>
+        {showResultModal && (
+          <div className="quiz-result-modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="quiz-result-title">
+            <div className="quiz-result-modal">
+              <button className="quiz-result-modal__close" type="button" onClick={() => setShowResultModal(false)} aria-label="Close quiz result">
+                <X size={18} />
+              </button>
+              <CheckCircle2 className="quiz-result-modal__icon" size={38} aria-hidden="true" />
+              <p className="eyebrow">Quiz Complete</p>
+              <h2 id="quiz-result-title">Your Polar Science Result</h2>
+              <strong className="quiz-result-modal__score">{result.score}%</strong>
+              <div className="quiz-result-modal__counts">
+                <div className="quiz-result-modal__count quiz-result-modal__count--correct">
+                  <strong>{result.correctAnswers}</strong>
+                  <span>Correct</span>
+                </div>
+                <div className="quiz-result-modal__count quiz-result-modal__count--wrong">
+                  <strong>{result.totalQuestions - result.correctAnswers}</strong>
+                  <span>Wrong</span>
+                </div>
+                <div className="quiz-result-modal__count">
+                  <strong>{result.totalQuestions}</strong>
+                  <span>Total</span>
+                </div>
+              </div>
+              <button className="button button--primary" type="button" onClick={() => setShowResultModal(false)}>
+                Review Answers
+              </button>
+            </div>
+          </div>
+        )}
+        <section className="quiz-card quiz-card--completed">
         <div className="quiz-card__header">
           <div className="quiz-score-badge">
             <CheckCircle2 aria-hidden="true" size={24} />
@@ -110,7 +145,8 @@ function QuizCard({ quiz }) {
         <button className="button button--secondary" onClick={handleReset} type="button" style={{ marginTop: '20px' }}>
           <RotateCcw size={14} /> Retake Diagnostic Evaluation
         </button>
-      </section>
+        </section>
+      </>
     );
   }
 

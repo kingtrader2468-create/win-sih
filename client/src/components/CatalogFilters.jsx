@@ -16,6 +16,33 @@ function CatalogFilters({ filters, options, onChange, onClear }) {
           />
         </div>
 
+        {options.years?.length > 0 && (
+          <div>
+            <select value={filters.year} onChange={(event) => onChange('year', event.target.value)} className="w-full px-3 py-2 bg-surface-container-lowest border border-surface-container-high rounded-lg text-on-surface font-body-sm focus:outline-none focus:ring-2 focus:ring-primary-container">
+              <option value="">All Years</option>
+              {options.years.map((value) => <option key={value} value={value}>{value}</option>)}
+            </select>
+          </div>
+        )}
+
+        {options.journals?.length > 0 && (
+          <div>
+            <select value={filters.journal} onChange={(event) => onChange('journal', event.target.value)} className="w-full px-3 py-2 bg-surface-container-lowest border border-surface-container-high rounded-lg text-on-surface font-body-sm focus:outline-none focus:ring-2 focus:ring-primary-container">
+              <option value="">All Journals</option>
+              {options.journals.map((value) => <option key={value} value={value}>{value}</option>)}
+            </select>
+          </div>
+        )}
+
+        {options.sources?.length > 0 && (
+          <div>
+            <select value={filters.source} onChange={(event) => onChange('source', event.target.value)} className="w-full px-3 py-2 bg-surface-container-lowest border border-surface-container-high rounded-lg text-on-surface font-body-sm focus:outline-none focus:ring-2 focus:ring-primary-container">
+              <option value="">All Sources</option>
+              {options.sources.map((value) => <option key={value} value={value}>{value}</option>)}
+            </select>
+          </div>
+        )}
+
         {/* Region Filter */}
         <div>
           <select
@@ -31,6 +58,22 @@ function CatalogFilters({ filters, options, onChange, onClear }) {
             ))}
           </select>
         </div>
+
+        {/* Station Filter */}
+        {options.stations?.length > 0 && (
+          <div>
+            <select
+              value={filters.station}
+              onChange={(event) => onChange('station', event.target.value)}
+              className="w-full px-3 py-2 bg-surface-container-lowest border border-surface-container-high rounded-lg text-on-surface font-body-sm focus:outline-none focus:ring-2 focus:ring-primary-container"
+            >
+              <option value="">All Stations / Regional Studies</option>
+              {options.stations.map((value) => (
+                <option key={value} value={value}>{value}</option>
+              ))}
+            </select>
+          </div>
+        )}
 
         {/* Type Filter */}
         {options.types?.length > 0 ? (

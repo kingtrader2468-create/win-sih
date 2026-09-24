@@ -5,6 +5,14 @@ const User = require('../models/User');
 const UserProgress = require('../models/UserProgress');
 const { awardEligibleBadges } = require('../services/progressService');
 const geminiService = require('../services/geminiService');
+const {
+  enrichRecords,
+  regions: polarRegions,
+  stationNames,
+  stationDirectory,
+  stationSearchClause,
+  regionSearchClause
+} = require('../services/polarClassificationService');
 
 function escapeRegex(value) {
   return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -17,14 +25,24 @@ function getSort(sort) {
 }
 
 async function getResearch(request, response) {
-  const { search, region, type, researchArea, year, sort = 'newest' } = request.query;
+  const { search, region, station, type, researchArea, year, sort = 'newest' } = request.query;
   const page = Math.max(Number.parseInt(request.query.page, 10) || 1, 1);
-  const limit = Math.min(Math.max(Number.parseInt(request.query.limit, 10) || 6, 1), 24);
+  const requestedLimit = Number.parseInt(request.query.limit, 10);
+  const limit = Number.isFinite(requestedLimit)
+    ? Math.min(Math.max(requestedLimit, 1), 100)
+    : 12;
   const filter = {};
+  const polarPattern = /antarct|arctic|polar|cryosphere|glacier|glaciolog|sea ice|ice sheet|ice shelf|ice core|permafrost|snowpack|himalay|greenland|svalbard|albedo|frost|subantarctic|north pole|south pole/i;
+  filter.$or = [
+    { title: polarPattern },
+    { description: polarPattern },
+    { researchArea: polarPattern },
+    { tags: polarPattern }
+  ];
 
   if (search) {
     const pattern = new RegExp(escapeRegex(search), 'i');
-    filter.$or = [
+    filter.$and = [{ $or: filter.$or }, { $or: [
       { title: pattern },
       { description: pattern },
       { authors: pattern },
@@ -32,27 +50,56 @@ async function getResearch(request, response) {
       { region: pattern },
       { sourceOrganization: pattern },
       { tags: pattern }
-    ];
+    ] }];
+    delete filter.$or;
   }
-  if (region) filter.region = region;
+  if (region) filter.$and = [...(filter.$and || []), regionSearchClause('research', region)];
+  const stationFilter = station ? stationSearchClause('research', station) : null;
+  if (stationFilter) filter.$and = [...(filter.$and || []), stationFilter];
   if (type) filter.type = type;
   if (researchArea) filter.researchArea = researchArea;
   if (year) filter.year = Number(year);
 
-  const [items, total, regions, types, researchAreas, years] = await Promise.all([
-    ResearchResource.find(filter).sort(getSort(sort)).skip((page - 1) * limit).limit(limit).lean(),
-    ResearchResource.countDocuments(filter),
+  const [items, total, regionValues, types, researchAreas, years, groupedResources] = await Promise.all([
+    station ? ResearchResource.find(filter).sort(getSort(sort)).skip((page - 1) * limit).limit(limit).lean() : Promise.resolve([]),
+    station ? ResearchResource.countDocuments(filter) : Promise.resolve(0),
     ResearchResource.distinct('region'),
     ResearchResource.distinct('type'),
     ResearchResource.distinct('researchArea'),
-    ResearchResource.distinct('year')
+    ResearchResource.distinct('year'),
+    station
+      ? Promise.resolve([])
+      : ResearchResource.find(filter).select('title description abstract researchArea region tags').lean()
   ]);
 
+  const stationGroups = new Map(stationDirectory().map((group) => [group.station, group]));
+  enrichRecords(groupedResources).forEach((resource) => {
+    const key = resource.category.group;
+    const current = stationGroups.get(key) || { station: key, region: resource.category.region, count: 0 };
+    current.count += 1;
+    if (current.region === 'Polar Regions' && resource.category.region !== 'Polar Regions') {
+      current.region = resource.category.region;
+    }
+    stationGroups.set(key, current);
+  });
+
+  const grouped = [...stationGroups.values()];
+  const regionalGroup = groupedResources.length
+    ? { station: 'Polar Regions', region: 'Polar Regions', count: 0 }
+    : null;
+  if (regionalGroup) {
+    const categorizedCount = grouped.reduce((sum, group) => sum + group.count, 0);
+    regionalGroup.count = groupedResources.length - categorizedCount;
+    if (regionalGroup.count > 0) grouped.push(regionalGroup);
+  }
+
   response.json({
-    items,
+    items: enrichRecords(items),
+    stationGroups: grouped.sort((left, right) => right.count - left.count || left.station.localeCompare(right.station)),
     pagination: { page, limit, total, totalPages: Math.max(Math.ceil(total / limit), 1) },
     filters: {
-      regions: regions.filter(Boolean).sort(),
+      regions: [...new Set([...regionValues.filter(Boolean), ...polarRegions])].sort(),
+      stations: stationNames(),
       types: types.filter(Boolean).sort(),
       researchAreas: researchAreas.filter(Boolean).sort(),
       years: years.filter(Boolean).sort((a, b) => b - a)

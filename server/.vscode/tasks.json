@@ -1,0 +1,16 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "Sync OpenAlex research records",
+			"type": "shell",
+			"command": "npm",
+			"args": [
+				"run",
+				"sync:openalex:replace"
+			],
+			"isBackground": false,
+			"problemMatcher": []
+		}
+	]
+}

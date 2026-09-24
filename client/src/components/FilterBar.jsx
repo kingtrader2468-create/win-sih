@@ -1,5 +1,6 @@
 const filterFields = [
   ['region', 'Region', 'regions'],
+  ['station', 'Station', 'stations'],
   ['type', 'Resource type', 'types'],
   ['researchArea', 'Research area', 'researchAreas'],
   ['year', 'Year', 'years']

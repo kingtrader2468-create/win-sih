@@ -6,6 +6,7 @@ const mysterySchema = new mongoose.Schema({
   description: String,
   difficulty: { type: String, default: 'beginner' },
   estimatedTime: String,
+  source: String,
   clues: [{ title: String, description: String, evidenceLink: { type: mongoose.Schema.Types.ObjectId, ref: 'EvidenceLink' }, choices: [String], correctAnswer: String }],
   status: { type: String, default: 'draft' }
 }, { timestamps: true });

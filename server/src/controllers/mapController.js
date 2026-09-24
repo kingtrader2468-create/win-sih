@@ -1,6 +1,10 @@
 const Station = require('../models/Station');
 const Expedition = require('../models/Expedition');
 const ResearchResource = require('../models/ResearchResource');
+const { fetchGlobalPolarStations } = require('../services/external/globalStationService');
+const globalStationCatalog = require('../services/external/globalStationCatalog');
+const { enrichStationsWithWeather } = require('../services/external/openWeatherService');
+const { enrichStationsWithImages } = require('../services/external/stationImageService');
 
 // Comprehensive scientific telemetry and metadata for Indian Polar Observatories
 const stationsTelemetry = [
@@ -370,15 +374,53 @@ const mapProjects = [
 
 async function getMapStations(req, res) {
   try {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 30000);
+    let globalStations = [];
+    try {
+      globalStations = await fetchGlobalPolarStations({ signal: controller.signal });
+    } catch (error) {
+      console.warn('Global station catalogue unavailable; returning verified local records:', error.message);
+    } finally {
+      clearTimeout(timeout);
+    }
+
+    const stationMap = new Map(globalStationCatalog.map((station) => [station.code, station]));
+    stationsTelemetry.forEach((station) => stationMap.set(station.code, {
+      ...station,
+      source: 'Polar India Hub / NCPOR station metadata',
+      sourceUrl: 'https://ncpor.res.in/',
+      verificationStatus: 'Curated station metadata; live observations vary by station'
+    }));
+    globalStations.forEach((station) => {
+      if (!stationMap.has(station.code)) stationMap.set(station.code, station);
+    });
+    const stationsWithWeather = await enrichStationsWithWeather([...stationMap.values()]);
+    const stations = await enrichStationsWithImages(stationsWithWeather);
+
     return res.json({
       success: true,
-      count: stationsTelemetry.length,
-      stations: stationsTelemetry
+      count: stations.length,
+      source: 'OpenStreetMap research-station catalogue plus Polar India Hub station metadata',
+      weatherSource: 'Open-Meteo',
+      lastUpdated: new Date().toISOString(),
+      stations
     });
   } catch (error) {
     console.error('getMapStations Error:', error);
     return res.status(500).json({ error: { message: 'Failed to retrieve polar station coordinates.' } });
   }
+}
+
+function getMapConfig(req, res) {
+  const key = process.env.MAPTILER_API_KEY;
+  return res.json({
+    provider: key ? 'maptiler' : 'carto',
+    styleUrl: key ? `https://api.maptiler.com/maps/streets-v2/style.json?key=${encodeURIComponent(key)}` : '',
+    tileUrl: key ? `https://api.maptiler.com/maps/voyager/{z}/{x}/{y}.png?key=${encodeURIComponent(key)}` : 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',
+    darkTileUrl: key ? `https://api.maptiler.com/maps/darkmatter/{z}/{x}/{y}.png?key=${encodeURIComponent(key)}` : 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
+    attribution: key ? '&copy; MapTiler &copy; OpenStreetMap contributors' : '&copy; OpenStreetMap contributors &copy; CARTO'
+  });
 }
 
 async function getMapLayers(req, res) {
@@ -431,6 +473,7 @@ async function getStationByCode(req, res) {
 
 module.exports = {
   getMapStations,
+  getMapConfig,
   getMapLayers,
   getMapProjects,
   getStationByCode,

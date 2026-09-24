@@ -8,6 +8,9 @@ const publicationSchema = new mongoose.Schema({
   doi: String,
   journal: String,
   url: String,
+  source: String,
+  sourceId: { type: String, unique: true, sparse: true, index: true },
+  sourceUrl: String,
   status: { type: String, default: 'published' },
   researchResource: { type: mongoose.Schema.Types.ObjectId, ref: 'ResearchResource' }
 }, { timestamps: true });

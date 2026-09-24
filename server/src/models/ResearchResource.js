@@ -25,6 +25,7 @@ const researchResourceSchema = new Schema({
     default: 'Verified Source'
   },
   sourceOrganization: String,
+  openAlexId: { type: String, unique: true, sparse: true, index: true },
   citation: String,
   lastVerifiedAt: Date,
   tags: [String],

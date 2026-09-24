@@ -545,6 +545,36 @@ html.dark [style*="color: #0b1c30"] {
   color: var(--color-on-surface) !important;
 }
 
+html.dark,
+body.dark {
+  --color-background: #0c0c0b;
+  --color-surface: #111110;
+  --color-surface-container-lowest: #0c0c0b;
+  --color-surface-container-low: #151513;
+  --color-surface-container: #1c1c1a;
+  --color-surface-container-high: #292927;
+  --color-surface-container-highest: #333331;
+  --color-surface-variant: #20201e;
+  --color-on-surface: #ffffff;
+  --color-on-surface-variant: #d6d6d2;
+  --color-outline: #a5a5a0;
+  --color-outline-variant: #333331;
+  --color-border: #333331;
+  --color-primary: #ffffff;
+  --color-primary-container: #ffffff;
+  --color-on-primary: #0c0c0b;
+  --color-on-primary-container: #0c0c0b;
+  --color-secondary: #d6d6d2;
+  --color-secondary-container: #292927;
+  --color-on-secondary-container: #ffffff;
+  --color-tertiary: #ffffff;
+  --color-navy: #ffffff;
+  --color-text-muted: #a5a5a0;
+  --color-inverse-surface: #ffffff;
+  --color-inverse-on-surface: #0c0c0b;
+  color-scheme: dark;
+}
+
 /* Smooth transitions for theme switching */
 *, *::before, *::after {
   transition: background-color 0.2s ease, border-color 0.2s ease, color 0.15s ease, box-shadow 0.2s ease;

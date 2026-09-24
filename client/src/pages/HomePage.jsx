@@ -2,63 +2,18 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { getDashboard, getHomepageData } from '../services/apiClient.js';
 import { useAuth } from '../context/AuthContext.jsx';
+import InfiniteSpiral from '../components/InfiniteSpiral.jsx';
+import PixelSnow from '../components/PixelSnow.jsx';
 
-const initialRecommendedResearch = [
-  {
-    id: 'res-1',
-    category: 'PEER-REVIEWED PAPER',
-    categoryClass: 'bg-primary-fixed text-on-primary-fixed-variant',
-    discipline: 'Glaciology',
-    region: 'Antarctica (Larsemann Hills) · 2024',
-    doi: 'DOI: 10.1016/j.cryos.2024.08',
-    image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDGryfkjMxwpeSl65ssTta79XAXgR25vSaiYrt2N4_q1G8e-63qaJQ3EfSwKmDlSZ_BOx5jpqkhPCyvg6pLvb7og2uE_Mo-bDbn23YDTU4vNCxS36Z5oY7gymytFq8_eiCXq-bEVqs0VGrIdlmO4zGmzvQPSH2kHCVNwHFvh5edABngClZx9Xth0ESN-Tk-V3_jseygWbBZo_jd2_1dXGXAUFXF7mZYwpk7aTgHX5jg',
-    alt: 'Satellite synthetic aperture radar map of Amery Ice Shelf',
-    title: 'Subglacial Lake Dynamics & Basal Melting Signatures Under Amery Ice Shelf',
-    authors: 'Dr. S. K. Roy, NCPOR Cryosphere Division; et al.',
-    evidence1: '4 Datasets linked',
-    evidence2: 'Evidence Graph Available',
-    evidence3: '98 Citations',
-    url: '/research',
-    actionText: 'View Research & Evidence',
-    actionIcon: 'arrow_forward'
-  },
-  {
-    id: 'res-2',
-    category: 'OBSERVATIONAL DATASET',
-    categoryClass: 'bg-primary-container/20 text-primary',
-    discipline: 'Atmospheric Science',
-    region: 'Arctic (Kongsfjorden) · 2023–2024',
-    liveBadge: true,
-    doi: 'Mooring ID: IndARC-Fjord-07',
-    image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuA11wvMLAb73CICuVTJ74My1yogWYfftgtCMM8KnLh9LsUAyMqVnORNNfE5RKPnwHXtRzLy0j4D8GRSaEG_dm38yhMXYi5fhrBBw0qhuCLe4GH_yZAxcufLjyg0Cs643OrIx8jJE5fcxgUbExpKe5GGsNj7Jdna3We2xTR5iGJzH1gA4CHhjH92AAbAnFhfweSkquATdNyGMPW_7bmA5-8e5sMotekrf8egGbXWkBKO',
-    alt: 'IndARC oceanographic buoy deployed in Arctic waters',
-    title: 'IndARC Moored Sensor Array: 10-Year Water Column Temperature & Salinity Timeseries',
-    authors: 'Himadri Station & IndARC Mooring Deployment Team',
-    evidence1: '1.2 GB Raw Data',
-    evidence2: 'Real-time Telemetry',
-    evidence3: 'Peer Verified',
-    url: '/datasets',
-    actionText: 'Explore Dataset',
-    actionIcon: 'table_chart'
-  },
-  {
-    id: 'res-3',
-    category: 'EXPEDITION MONOGRAPH',
-    categoryClass: 'bg-secondary-container text-on-secondary-container',
-    discipline: 'Glaciology',
-    region: 'Himalaya (Chandra Basin) · 2024',
-    doi: 'Elevation: 4,080m AMSL',
-    image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBKs1W4JnAgubhM9r272xln_6shcdlFYKZ0m9ZKAT3Dg8GAOA5E3g_rMDM3nsDeShDTOPlgSvoxOhBBTBfZgKV56KkapYxliT6Dk7znOQSCc3enEe1Io_8GczgHZ5-6IF_0mdD8qQkWqrtl9ubeowuQotYz7xvAnoA5o62GGb53tqWkocLN5rHu4sN5rdTgOVSUJ8oBUczzS2fzxOwzU4bul2fDoWJuykfPeWORiVJ5',
-    alt: 'Himansh High Altitude Research Station in Spiti Valley Himalayas',
-    title: 'Mass Balance & Glacier Retreat Dynamics in Western Himalaya: Himansh Observatory',
-    authors: 'NCPOR & Geological Survey of India Cryo-Group',
-    evidence1: '3D DEM Models',
-    evidence2: 'Radar Profiles',
-    evidence3: 'Student Brief',
-    url: '/expeditions',
-    actionText: 'Read Monograph',
-    actionIcon: 'description'
-  }
+const polarSpiralImages = [
+  { src: 'https://images.unsplash.com/photo-1517783999520-f068d7431a60?auto=format&fit=crop&w=900&q=80', alt: 'Antarctic glacier field' },
+  { src: 'https://images.unsplash.com/photo-1483347756197-71ef80e95f73?auto=format&fit=crop&w=900&q=80', alt: 'Polar atmosphere and sky' },
+  { src: 'https://images.unsplash.com/photo-1551582045-6ec9c11d8697?auto=format&fit=crop&w=900&q=80', alt: 'Polar wildlife research' },
+  { src: 'https://images.unsplash.com/photo-1464278533981-50106e6176b1?auto=format&fit=crop&w=900&q=80', alt: 'Himalayan high altitude fieldwork' },
+  { src: 'https://images.unsplash.com/photo-1547036967-23d11aacaee0?auto=format&fit=crop&w=900&q=80', alt: 'Arctic ocean and sea ice' },
+  { src: 'https://images.unsplash.com/photo-1511497584788-876760111969?auto=format&fit=crop&w=900&q=80', alt: 'Earth observation landscape' },
+  { src: 'https://images.unsplash.com/photo-1526392060635-9d6019884377?auto=format&fit=crop&w=900&q=80', alt: 'Snow covered polar ridge' },
+  { src: 'https://images.unsplash.com/photo-1486911278844-a81c5267e227?auto=format&fit=crop&w=900&q=80', alt: 'Remote polar coastline' }
 ];
 
 function HomePage() {
@@ -83,60 +38,19 @@ function HomePage() {
 
   const progress = dashboardData?.userProgress;
   const recentItem = progress?.recentResearch?.[0]?.resource;
-  const counts = homepageData?.stats || dashboardData?.counts || {
-    research: 1420,
-    expeditions: 44,
-    datasets: 86,
-    publications: 420,
-    stations: 6
-  };
-
-  const activeStations = homepageData?.activeStations || [
-    {
-      code: 'BHARATI',
-      name: 'Bharati Station',
-      region: 'Antarctica',
-      subRegion: 'Larsemann Hills · 69°24′S 76°11′E',
-      status: 'Operational · Active',
-      temperature: -18.4,
-      windSpeed: '42 km/h',
-      pressure: '988 hPa',
-      image: 'https://images.unsplash.com/photo-1517411032315-54ef2cb783bb?auto=format&fit=crop&w=800&q=80'
-    },
-    {
-      code: 'MAITRI',
-      name: 'Maitri Station',
-      region: 'Antarctica',
-      subRegion: 'Schirmacher Oasis · 70°45′S 11°44′E',
-      status: 'Operational',
-      temperature: -22.1,
-      windSpeed: '51 km/h',
-      pressure: '974 hPa'
-    },
-    {
-      code: 'HIMADRI',
-      name: 'Himadri Station',
-      region: 'Arctic',
-      subRegion: 'Ny-Ålesund, Svalbard · 78°55′N 11°56′E',
-      status: 'Active · IndARC',
-      temperature: -6.8,
-      windSpeed: '28 km/h',
-      pressure: '1004 hPa'
-    }
-  ];
 
   const disciplines = ['All Polar Disciplines', 'Glaciology', 'Atmospheric Science', 'Polar Biology'];
 
-  // Prefer dynamic research from DB, fallback to initialRecommendedResearch
+  // Render only research returned by the backend.
   const dynamicResearch = homepageData?.featuredResearch?.length
-    ? homepageData.featuredResearch.map((item, idx) => ({
-        id: item._id || `res-${idx}`,
+    ? homepageData.featuredResearch.map((item) => ({
+      id: item._id,
         category: (item.type || 'PEER-REVIEWED PAPER').toUpperCase(),
         categoryClass: 'bg-primary-container/20 text-primary',
         discipline: item.discipline || 'Glaciology',
         region: `${item.region || 'Antarctica'} · ${item.year || 2024}`,
         doi: item.doi || `DOI: 10.1016/j.polar.${item.year || 2024}`,
-        image: item.coverUrl || initialRecommendedResearch[idx % initialRecommendedResearch.length].image,
+        image: item.thumbnailUrl || '',
         alt: item.title,
         title: item.title,
         authors: item.authors?.join(', ') || 'NCPOR Scientific Contingent',
@@ -147,57 +61,70 @@ function HomePage() {
         actionText: 'View Research & Evidence',
         actionIcon: 'arrow_forward'
       }))
-    : initialRecommendedResearch;
+    : [];
 
   const filteredResearch = dynamicResearch.filter((item) => {
     if (selectedDiscipline === 'All Polar Disciplines' || selectedDiscipline === 'All') return true;
     return item.discipline === selectedDiscipline;
   });
 
+  const researchImageFallbacks = [
+    'https://images.unsplash.com/photo-1517783999520-f068d7431a60?auto=format&fit=crop&w=900&q=80',
+    'https://images.unsplash.com/photo-1483347756197-71ef80e95f73?auto=format&fit=crop&w=900&q=80',
+    'https://images.unsplash.com/photo-1551582045-6ec9c11d8697?auto=format&fit=crop&w=900&q=80',
+    'https://images.unsplash.com/photo-1464278533981-50106e6176b1?auto=format&fit=crop&w=900&q=80',
+    'https://images.unsplash.com/photo-1547036967-23d11aacaee0?auto=format&fit=crop&w=900&q=80',
+    'https://images.unsplash.com/photo-1511497584788-876760111969?auto=format&fit=crop&w=900&q=80',
+    'https://images.unsplash.com/photo-1526392060635-9d6019884377?auto=format&fit=crop&w=900&q=80',
+    'https://images.unsplash.com/photo-1486911278844-a81c5267e227?auto=format&fit=crop&w=900&q=80',
+    'https://images.unsplash.com/photo-1516026672322-bc52d61a55d5?auto=format&fit=crop&w=900&q=80',
+    'https://images.unsplash.com/photo-1497250681960-ef046c08a56e?auto=format&fit=crop&w=900&q=80',
+    'https://images.unsplash.com/photo-1500534623283-312aade485b7?auto=format&fit=crop&w=900&q=80',
+    'https://images.unsplash.com/photo-1473445361085-b9a07f55608b?auto=format&fit=crop&w=900&q=80',
+    'https://images.unsplash.com/photo-1483347756197-71ef80e95f73?auto=format&fit=crop&w=900&q=80&sat=-20',
+    'https://images.unsplash.com/photo-1517783999520-f068d7431a60?auto=format&fit=crop&w=900&q=80&sat=20',
+    'https://images.unsplash.com/photo-1526392060635-9d6019884377?auto=format&fit=crop&w=900&q=80&sat=-30',
+    'https://images.unsplash.com/photo-1464278533981-50106e6176b1?auto=format&fit=crop&w=900&q=80&sat=15',
+    'https://images.unsplash.com/photo-1547036967-23d11aacaee0?auto=format&fit=crop&w=900&q=80&sat=-15',
+    'https://images.unsplash.com/photo-1511497584788-876760111969?auto=format&fit=crop&w=900&q=80&sat=25'
+  ];
+
+  const topicImageRules = [
+    { terms: ['glacier', 'glaciolog', 'ice sheet', 'ice core', 'snow', 'cryosphere'], pool: [0, 6, 12] },
+    { terms: ['atmosphere', 'aerosol', 'ozone', 'climate', 'meteorolog', 'wind'], pool: [1, 7, 13] },
+    { terms: ['biology', 'ecology', 'wildlife', 'penguin', 'seal', 'organism'], pool: [2, 8, 14] },
+    { terms: ['himalaya', 'mountain', 'chandra', 'himansh', 'high altitude'], pool: [3, 9, 15] },
+    { terms: ['ocean', 'marine', 'fjord', 'sea ice', 'arctic', 'svalbard'], pool: [4, 10, 16] },
+    { terms: ['remote sensing', 'satellite', 'earth observation', 'geophysics', 'mapping'], pool: [5, 11, 17] }
+  ];
+
+  const getResearchImage = (item, cardIndex) => {
+    const searchableText = `${item.title} ${item.authors} ${item.discipline} ${item.region}`.toLowerCase();
+    const matchedRule = topicImageRules.find((rule) =>
+      rule.terms.some((term) => searchableText.includes(term))
+    );
+    const imagePool = matchedRule?.pool || researchImageFallbacks.map((_, index) => index);
+    return researchImageFallbacks[imagePool[cardIndex % imagePool.length]];
+  };
+
   return (
-    <div className="flex flex-col w-full bg-surface-container-lowest">
-      {/* Subtle Ambient Top Grid Accent */}
-      <div className="relative w-full overflow-hidden">
-        {/* Atmospheric Polar Geometry (SVG Technical Grids) */}
-        <div className="absolute inset-0 pointer-events-none opacity-40">
-          <svg className="w-full h-full text-surface-container-highest" xmlns="http://www.w3.org/2000/svg">
-            <defs>
-              <pattern height="48" id="polar-grid" patternUnits="userSpaceOnUse" width="48">
-                <path d="M 48 0 L 0 0 0 48" fill="none" stroke="currentColor" strokeDasharray="2 4" strokeWidth="0.75" />
-              </pattern>
-            </defs>
-            <rect fill="url(#polar-grid)" height="100%" width="100%" />
-          </svg>
-          <div className="absolute -top-32 right-12 w-96 h-96 rounded-full bg-primary-fixed/20 blur-3xl pointer-events-none" />
-          <div className="absolute top-48 left-1/4 w-80 h-80 rounded-full bg-tertiary-fixed/15 blur-3xl pointer-events-none" />
-        </div>
-
-        {/* 1. HERO SECTION */}
-        <section className="relative max-w-[1440px] mx-auto px-margin-sm lg:px-margin-lg pt-space-xl lg:pt-space-2xl pb-space-xl">
-          {/* Geographic Reference Markers */}
-          <div className="flex flex-wrap items-center justify-between gap-space-sm mb-space-lg pb-space-sm border-b border-surface-container-high/60 font-data-tabular text-label-sm text-outline uppercase tracking-wider">
-            <div className="flex items-center gap-space-md">
-              <span className="inline-flex items-center gap-1.5 text-primary font-semibold">
-                <span className="w-1.5 h-1.5 rounded-full bg-primary-container animate-ping" />
-                INDIAN CRYOSPHERIC GRID OBSERVATORY
-              </span>
-              <span className="hidden md:inline text-outline-variant">|</span>
-              <span className="hidden md:inline">ANTARCTIC CIRCLE · 66°33′49″S 76°22′48″E</span>
-            </div>
-            <div className="flex items-center gap-space-md">
-              <span>NY-ÅLESUND SVALBARD · 78°55′29″N 11°56′10″E</span>
-              <span className="hidden sm:inline text-outline-variant">|</span>
-              <span className="hidden sm:inline">HIMANSH CHANDRA · 32°24′N 77°37′E</span>
-            </div>
-          </div>
-
+    <div className="relative flex flex-col w-full bg-surface-container-lowest">
+      <div className="pointer-events-none fixed inset-0 z-0 opacity-35">
+        <PixelSnow
+          color="#b9d9ee"
+          minFlakeSize={1.25}
+          speed={0.6}
+          density={0.3}
+          direction={125}
+          brightness={0.8}
+          className="h-full"
+        />
+      </div>
+      {/* 1. HERO SECTION */}
+      <section className="relative z-10 max-w-[1440px] mx-auto px-margin-sm lg:px-margin-lg pt-space-xl lg:pt-space-2xl pb-space-xl min-h-[620px] lg:min-h-[680px] flex items-center">
           {/* Main Hero Headline & Introduction */}
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-gutter-lg items-center">
-            <div className="lg:col-span-8 flex flex-col items-start">
-              <div className="inline-flex items-center gap-space-xs px-3 py-1 rounded-full bg-surface-container text-on-surface font-label-sm text-label-sm mb-space-md">
-                <span className="material-symbols-outlined text-primary text-[16px]">school</span>
-                <span>Student Research &amp; Telemetry Portal · National Centre for Polar &amp; Ocean Research</span>
-              </div>
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-0 items-center justify-between w-full">
+            <div className="lg:col-span-7 flex flex-col items-start lg:pr-16">
               <h1 className="font-headline-lg text-headline-lg lg:font-display-xl lg:text-display-xl text-on-surface font-extrabold tracking-tight leading-tight mb-space-md">
                 Discover India’s Polar Science
               </h1>
@@ -214,13 +141,6 @@ function HomePage() {
                   <span className="material-symbols-outlined text-[18px]">explore</span>
                   <span>Explore Research</span>
                 </Link>
-                <Link
-                  to="/map"
-                  className="inline-flex items-center gap-space-sm px-6 py-3 bg-secondary-container text-on-secondary-container font-label-md text-label-md rounded-lg hover:opacity-90 transition-all font-semibold shadow-2xs"
-                >
-                  <span className="material-symbols-outlined text-[18px]">public</span>
-                  <span>Interactive Polar Map</span>
-                </Link>
                 <a
                   href="#active-journey"
                   className="inline-flex items-center gap-space-sm px-6 py-3 bg-surface-container-low text-on-surface font-label-md text-label-md rounded-lg hover:bg-surface-container transition-all"
@@ -228,103 +148,36 @@ function HomePage() {
                   <span>Continue Learning</span>
                   <span className="material-symbols-outlined text-[18px]">arrow_downward</span>
                 </a>
-                <div className="hidden sm:flex items-center gap-space-xs px-3 py-2 text-outline font-data-tabular text-label-sm">
-                  <span className="material-symbols-outlined text-[16px] text-tertiary-container">verified</span>
-                  <span>MoES Sovereign Scientific Grid</span>
-                </div>
               </div>
             </div>
 
-            {/* Hero Scientific Telemetry Graphic / Visual Panel */}
-            <div className="lg:col-span-4 w-full">
-              <div className="relative bg-surface-container-lowest rounded-xl p-space-md shadow-sm border border-surface-container-high/80 overflow-hidden">
-                <div className="flex items-center justify-between mb-space-sm">
-                  <span className="font-label-sm text-label-sm uppercase tracking-wider text-secondary font-semibold flex items-center gap-1.5">
-                    <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                    Tri-Polar Ground Stations
-                  </span>
-                  <Link to="/map" className="font-data-tabular text-label-sm text-primary hover:underline flex items-center gap-0.5">
-                    <span>Live Telemetry</span>
-                    <span className="material-symbols-outlined text-[14px]">chevron_right</span>
-                  </Link>
-                </div>
-
-                {/* Visual Imagery of Indian Station */}
-                <div className="relative w-full h-36 rounded-lg overflow-hidden mb-space-sm group">
-                  <img
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                    alt={activeStations[0]?.name || 'Bharati Research Station'}
-                    src={activeStations[0]?.image || 'https://images.unsplash.com/photo-1517411032315-54ef2cb783bb?auto=format&fit=crop&w=800&q=80'}
+            <div className="lg:col-span-5 w-full lg:pl-10">
+              <div className="relative overflow-hidden rounded-2xl">
+                <div className="h-[360px] sm:h-[440px]">
+                  <InfiniteSpiral
+                    items={polarSpiralImages}
+                    animationMode="all"
+                    speed={0.32}
+                    radius={170}
+                    cardWidth={112}
+                    cardHeight={112}
+                    verticalSpacing={62}
+                    perspective={1000}
+                    cardRadius={14}
+                    centerScale={1.18}
+                    edgeBlur={5}
+                    cardsPerTurn={8}
+                    pauseOnHover
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-on-surface/80 via-transparent to-transparent" />
-                  <div className="absolute bottom-2 left-2 right-2 flex items-center justify-between text-surface-container-lowest">
-                    <div>
-                      <div className="font-title-md text-label-md font-bold">{activeStations[0]?.name || 'Bharati Station'}</div>
-                      <div className="font-label-sm text-[10px] opacity-80">{activeStations[0]?.subRegion || 'Larsemann Hills'}</div>
-                    </div>
-                    <span className="px-2 py-0.5 rounded bg-tertiary/80 text-surface-container-lowest font-data-tabular text-[11px] font-bold">
-                      {activeStations[0]?.temperature !== undefined ? `${activeStations[0].temperature}°C` : '-18.4°C'}
-                    </span>
-                  </div>
-                </div>
-
-                {/* Mini Live Coordinates Grid */}
-                <div className="grid grid-cols-2 gap-space-xs font-data-tabular text-label-sm">
-                  <div className="p-2 rounded bg-surface-container-low flex flex-col justify-between">
-                    <span className="text-outline text-[10px]">{activeStations[1]?.name || 'MAITRI'}</span>
-                    <div className="flex items-center justify-between mt-1">
-                      <span className="text-on-surface font-semibold text-xs">{activeStations[1]?.status || 'Active'}</span>
-                      <span className="font-bold text-primary text-xs">{activeStations[1]?.temperature !== undefined ? `${activeStations[1].temperature}°C` : '-22.1°C'}</span>
-                    </div>
-                  </div>
-                  <div className="p-2 rounded bg-surface-container-low flex flex-col justify-between">
-                    <span className="text-outline text-[10px]">{activeStations[2]?.name || 'HIMADRI'}</span>
-                    <div className="flex items-center justify-between mt-1">
-                      <span className="text-on-surface font-semibold text-xs">{activeStations[2]?.status || 'Active'}</span>
-                      <span className="font-bold text-sky-500 text-xs">{activeStations[2]?.temperature !== undefined ? `${activeStations[2].temperature}°C` : '-6.8°C'}</span>
-                    </div>
-                  </div>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Quick Stats Banner */}
-          <div className="mt-space-xl p-space-md lg:p-space-lg rounded-xl bg-surface-container-low shadow-sm grid grid-cols-2 md:grid-cols-4 gap-gutter border border-surface-container-high/40 font-data-tabular">
-            <div className="flex flex-col">
-              <span className="font-headline-md text-headline-md text-primary font-bold tracking-tight">
-                {counts.expeditions || 44}
-              </span>
-              <span className="font-title-md text-body-sm text-on-surface font-semibold mt-0.5">Indian Polar Expeditions</span>
-              <span className="font-label-sm text-label-sm text-outline">Continuous since 1981</span>
-            </div>
-            <div className="flex flex-col">
-              <span className="font-headline-md text-headline-md text-primary font-bold tracking-tight">
-                {counts.stations || 6}
-              </span>
-              <span className="font-title-md text-body-sm text-on-surface font-semibold mt-0.5">Permanent Research Stations</span>
-              <span className="font-label-sm text-label-sm text-outline">Bharati, Maitri, Himadri, Himansh</span>
-            </div>
-            <div className="flex flex-col">
-              <span className="font-headline-md text-headline-md text-primary font-bold tracking-tight">
-                {counts.datasets || 86}
-              </span>
-              <span className="font-title-md text-body-sm text-on-surface font-semibold mt-0.5">Open Access Datasets</span>
-              <span className="font-label-sm text-label-sm text-outline">NetCDF-4 Observational Archives</span>
-            </div>
-            <div className="flex flex-col">
-              <span className="font-headline-md text-headline-md text-primary font-bold tracking-tight">
-                {counts.publications ? `${counts.publications}+` : '420+'}
-              </span>
-              <span className="font-title-md text-body-sm text-on-surface font-semibold mt-0.5">Scientific Publications</span>
-              <span className="font-label-sm text-label-sm text-outline">Open NCPOR Science Databank</span>
-            </div>
-          </div>
-        </section>
-      </div>
+      </section>
 
       {/* 2. ACTIVE RESEARCH JOURNEY (Continue Learning) */}
-      <section className="w-full max-w-[1440px] mx-auto px-margin-sm lg:px-margin-lg py-space-xl" id="active-journey">
+      <section className="relative z-10 w-full max-w-[1440px] mx-auto px-margin-sm lg:px-margin-lg py-space-xl" id="active-journey">
         <div className="bg-surface-container-lowest rounded-2xl p-space-lg lg:p-space-xl shadow-md border border-surface-container-high/60 relative overflow-hidden">
           {/* Top Decorative Band */}
           <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-tertiary-container via-primary-container to-primary" />
@@ -451,7 +304,7 @@ function HomePage() {
 
         {/* 3 Rich Scientific Cards */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-gutter-lg">
-          {filteredResearch.map((item) => (
+          {filteredResearch.map((item, cardIndex) => (
             <div
               key={item.id}
               className="bg-surface-container-lowest rounded-2xl p-space-lg shadow-sm hover:shadow-md transition-all flex flex-col justify-between group border border-surface-container-high/60"
@@ -468,7 +321,13 @@ function HomePage() {
                   <img
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                     alt={item.alt}
-                    src={item.image}
+                    src={getResearchImage(item, cardIndex)}
+                    onError={(event) => {
+                      const fallback = researchImageFallbacks[cardIndex % researchImageFallbacks.length];
+                      if (event.currentTarget.src !== fallback) {
+                        event.currentTarget.src = fallback;
+                      }
+                    }}
                   />
                   {item.liveBadge && (
                     <div className="absolute top-2 right-2 px-2 py-0.5 rounded bg-tertiary-container text-surface-container-lowest font-data-tabular text-label-sm font-semibold flex items-center gap-1">
